@@ -1,0 +1,29 @@
+{
+    "name": "phasertemplate",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "webpack --mode development",
+        "build": "webpack --mode production && webpack-dev-server --mode production",
+        "start": "npm run dev && node index.js",
+        "debug": "npm run dev && node --nolazy --inspect-brk=9229 index.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "expose-loader": "0.7.5",
+        "ts-loader": "6.0.4",
+        "typescript": "3.9.6",
+        "webpack": "^5.11.1",
+        "webpack-cli": "^4.3.0"
+    },
+    "dependencies": {
+        "@types/bootstrap": "^4.5.0",
+        "@types/jquery": "^3.5.0",
+        "body-parser": "^1.19.0",
+        "express": "^4.17.1",
+        "morgan": "^1.9.1",
+        "phaser": "3.55.2"
+    }
+}
