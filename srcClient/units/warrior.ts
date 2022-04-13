@@ -11,7 +11,7 @@ export class Warrior extends Unit {
     public hp: number = 30
     public dmgMin: number= 3
     public dmgMax: number = 7
-    public speed: number = 2
+    public speed: number = 5
 
     constructor(scene: Scene, x: number, y: number, readonly team: Team) {
         super(scene, x, y)

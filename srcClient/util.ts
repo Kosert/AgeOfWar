@@ -16,6 +16,8 @@ declare global {
 
     export interface Array<T> {
         shuffle(): Array<T>
+        minBy(getter: (item: T) => any): T
+        maxBy(getter: (item: T) => any): T
     }
 }
 
@@ -46,6 +48,20 @@ Array.prototype.shuffle = function () {
         [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]]
     }
     return newArr
+}
+
+Array.prototype.minBy = function (getter: (item: any) => any) {
+    if (this.length == 0)
+        return null
+
+    return this.reduce((a, b) => getter(a) < getter(b) ? a : b)
+}
+
+Array.prototype.maxBy = function (getter: (item: any) => any) {
+    if (this.length == 0)
+        return null
+
+    return this.reduce((a, b) => getter(a) > getter(b) ? a : b)
 }
 
 export {}

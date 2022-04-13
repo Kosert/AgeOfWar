@@ -4,6 +4,7 @@ import { Ragdoll } from "./ragdoll"
 import { Team } from "./team"
 import { Unit } from "./units/unit"
 import { Warrior } from "./units/warrior"
+import "util"
 
 export class MainScene extends Scene {
     private fpsText: FpsText
@@ -78,17 +79,27 @@ export class MainScene extends Scene {
             .setInteractive()
             
         button.on("pointerdown", function () {
-            const warrior = new Warrior(self, 100, self.cameras.main.height - 120, Team.Left)
+            const firstUnitX = self.units.filter(it => it.team == Team.Left)
+                .map(it => it.x)
+                .concat(110)
+                .minBy(it => it)
+
+            const warrior = new Warrior(self, firstUnitX - 10, self.cameras.main.height - 120, Team.Left)
             self.units.push(warrior)
             self.add.existing(warrior)
         })
 
         const button2 = this.add.rectangle(self.cameras.main.width - 200, 100, 100, 100, 0x0000ff)
-        .setOrigin(0, 0)
-        .setInteractive()
+            .setOrigin(0, 0)
+            .setInteractive()
         
         button2.on("pointerdown", function () {
-            const warrior = new Warrior(self, self.cameras.main.width - 100, self.cameras.main.height - 120, Team.Right)
+            const firstUnitX = self.units.filter(it => it.team == Team.Right)
+                .map(it => it.x)
+                .concat(self.cameras.main.width - 110)
+                .maxBy(it => it)
+
+            const warrior = new Warrior(self, firstUnitX + 10, self.cameras.main.height - 120, Team.Right)
             self.units.push(warrior)
             self.add.existing(warrior)
         })

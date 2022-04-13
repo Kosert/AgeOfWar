@@ -11,7 +11,7 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
     hp: number
     dmgMin: number
     dmgMax: number
-    speed: number = 2
+    speed: number
 
     heathBar: Phaser.GameObjects.Graphics
     heathBarBorder: Phaser.GameObjects.Graphics
@@ -26,6 +26,7 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
 
     private attackCompleted: boolean = false
     private currentState: UnitState
+    private lastFrameIndex: number
     setUnitState(state: UnitState) {
         this.setFlipX(this.team == Team.Right)
 
@@ -46,11 +47,14 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
                 this.setVelocityX(0)
                 break
         }
+        const frameIndex = this.anims.currentFrame?.index
+        if (this.currentState == UnitState.Attack && frameIndex != this.lastFrameIndex && frameIndex == 4) {
+            this.attackCompleted = true
+        }
+        this.lastFrameIndex = frameIndex
+
         if (this.currentState == state && (animVariants.length <= 1 || this.anims.isPlaying)) {
             return
-        }
-        if (this.currentState == UnitState.Attack && this.anims.currentFrame.isLast) {
-            this.attackCompleted = true
         }
         this.currentState = state
         const randomVariant = Phaser.Math.RND.pick(animVariants)
@@ -61,18 +65,17 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         this.updateBumperPosition()
         this.updateHpBars()
 
-        //todo when to stop?
-        if (this.team == Team.Left && this.x > 1800) {
-            this.setUnitState(UnitState.Idle)
-            return
-        } else if (this.team == Team.Right && this.x < 100) {
-            this.setUnitState(UnitState.Idle)
-            return
-        }
 
         const inFront = this.getUnitInFront(allUnits)
         if (!inFront) {
-            this.setUnitState(UnitState.Run)
+            //todo when to stop?
+            if (this.team == Team.Left && this.x > 1750) {
+                this.setUnitState(UnitState.Idle)
+            } else if (this.team == Team.Right && this.x < 200) {
+                this.setUnitState(UnitState.Idle)
+            } else {
+                this.setUnitState(UnitState.Run)
+            }
             return
         }
 
