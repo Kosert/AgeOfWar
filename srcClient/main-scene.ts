@@ -20,7 +20,7 @@ export class MainScene extends Scene {
         this.load.spritesheet("warrior_death", "assets/warrior/Death.png", { frameWidth: 184, frameHeight: 137 })
     }
 
-    readonly warriors: Unit[] = []
+    readonly units: Unit[] = []
 
     create() {
         this.matter.world.setBounds(0, 0, this.cameras.main.width, this.cameras.main.height - 60)
@@ -71,7 +71,7 @@ export class MainScene extends Scene {
             
         button.on("pointerdown", function () {
             const warrior = new Warrior(self, 100, self.cameras.main.height - 120, Team.Left)
-            self.warriors.push(warrior)
+            self.units.push(warrior)
             self.add.existing(warrior)
         })
 
@@ -81,13 +81,23 @@ export class MainScene extends Scene {
         
         button2.on("pointerdown", function () {
             const warrior = new Warrior(self, self.cameras.main.width - 100, self.cameras.main.height - 120, Team.Right)
-            self.warriors.push(warrior)
+            self.units.push(warrior)
             self.add.existing(warrior)
         })
     }
 
     update(time: number, delta: number) {
         this.fpsText.update()
-        this.warriors.forEach(it => it.update(this.warriors))
+
+        for (let i = 0; i < this.units.length; i++) {
+            const unit = this.units[i]
+            unit.update(this.units)
+            
+            if (unit.hp == 0) {
+                unit.destroy()
+                this.units.splice(i, 1)
+                i--
+            }
+        }
     }
 }
