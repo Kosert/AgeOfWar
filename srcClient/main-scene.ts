@@ -1,5 +1,6 @@
 import { Scene } from "phaser"
 import FpsText from "./fpsText"
+import { Ragdoll } from "./ragdoll"
 import { Team } from "./team"
 import { Unit } from "./units/unit"
 import { Warrior } from "./units/warrior"
@@ -38,6 +39,13 @@ export class MainScene extends Scene {
             frames: this.anims.generateFrameNumbers("warrior_idle", { start: 0, end: 5 }),
             frameRate: 5,
             repeat: -1,
+        })
+        
+        this.anims.create({
+            key: "warrior_death",
+            frames: this.anims.generateFrameNumbers("warrior_death", { start: 0, end: 8 }),
+            frameRate: 8,
+            repeat: 0,
         })
 
         this.anims.create({
@@ -92,8 +100,10 @@ export class MainScene extends Scene {
         for (let i = 0; i < this.units.length; i++) {
             const unit = this.units[i]
             unit.update(this.units)
-            
+
             if (unit.hp == 0) {
+                const ragdoll = new Ragdoll(this, unit)
+                this.add.existing(ragdoll)
                 unit.destroy()
                 this.units.splice(i, 1)
                 i--
