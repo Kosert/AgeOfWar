@@ -1,34 +1,33 @@
 import { Scene } from "phaser"
 import { Bumper } from "../bumper"
-import { Team } from "../team"
-import { UnitState } from "../unit-state"
-import "../util"
+import { Team } from "../../data/team"
+import { UnitState } from "../../data/unit-state"
+import "../../util"
+import { UnitType } from "../../data/unit-type"
 
 export abstract class Unit extends Phaser.Physics.Matter.Sprite {
-    abstract readonly name: string
-    abstract readonly team: Team
-    abstract readonly unitWidth: number
     hp: number
-    dmgMin: number
-    dmgMax: number
-    speed: number
 
     heathBar: Phaser.GameObjects.Graphics
     heathBarBorder: Phaser.GameObjects.Graphics
 
     private bumper: Bumper
-    constructor(scene: Scene, x: number, y: number) {
+    constructor(scene: Scene, x: number, y: number, readonly team: Team, readonly unitType: UnitType) {
         super(scene.matter.world, x, y, "")
+        this.hp = unitType.hp
+
+        this.setFlipX(team == Team.Right)
+        this.setRectangle(unitType.unitWidth, unitType.unitWidth)
+        this.setFixedRotation()
+        this.setSensor(true)
 
         this.bumper = new Bumper(scene, 0, y)
         this.updateBumperPosition()
     }
 
-    private attackCompleted: boolean = false
-    private currentState: UnitState
-    private lastFrameIndex: number
-    setUnitState(state: UnitState) {
-        this.setFlipX(this.team == Team.Right)
+    protected handleAttack: boolean = false
+    protected currentState: UnitState
+    private setUnitState(state: UnitState) {
 
         let animVariants = [""]
         switch (state) {
@@ -36,7 +35,7 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
                 this.setVelocityX(0)
                 break
             case UnitState.Run:
-                const velocity = this.team == Team.Right ? -this.speed : this.speed
+                const velocity = this.team == Team.Right ? -this.unitType.speed : this.unitType.speed
                 this.setVelocityX(velocity)
                 break
             case UnitState.Attack:
@@ -47,24 +46,15 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
                 this.setVelocityX(0)
                 break
         }
-        const frameIndex = this.anims.currentFrame?.index
-        if (this.currentState == UnitState.Attack && frameIndex != this.lastFrameIndex && frameIndex == 4) {
-            this.attackCompleted = true
-        }
-        this.lastFrameIndex = frameIndex
 
-        if (this.currentState == state && (animVariants.length <= 1 || this.anims.isPlaying)) {
-            return
-        }
-        this.currentState = state
-        const randomVariant = Phaser.Math.RND.pick(animVariants)
-        this.anims.play(this.name + "_" + state + randomVariant, true)
+        this.onUnitState(state)
     }
+
+    abstract onUnitState(state: UnitState)
 
     update(allUnits: Unit[]) {
         this.updateBumperPosition()
         this.updateHpBars()
-
 
         const inFront = this.getUnitInFront(allUnits)
         if (!inFront) {
@@ -83,9 +73,9 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
             this.setUnitState(UnitState.Idle)
         } else {
             this.setUnitState(UnitState.Attack)
-            if (this.attackCompleted) {
-                this.attackCompleted = false
-                inFront.hp = (inFront.hp - Phaser.Math.RND.between(this.dmgMin, this.dmgMax)).coerceAtLeast(0)
+            if (this.handleAttack) {
+                inFront.hp = (inFront.hp - Phaser.Math.RND.between(this.unitType.dmgMin, this.unitType.dmgMax)).coerceAtLeast(0)
+                this.handleAttack = false
             }
         }
     }
@@ -94,19 +84,19 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         let bumperX: number
         switch (this.team) {
             case Team.Left:
-                bumperX = this.x + this.unitWidth / 2
+                bumperX = this.x + this.unitType.unitWidth / 2
                 break
             case Team.Right:
-                bumperX = this.x - this.unitWidth / 2
+                bumperX = this.x - this.unitType.unitWidth / 2
                 break
         }
         this.bumper.setX(bumperX)
     }
-    
+
     private updateHpBars() {
         const barX = this.x - 32
-        const barY = this.y - this.unitWidth
-        const pixels = (64 * this.hp) / 30
+        const barY = this.y - this.unitType.unitWidth
+        const pixels = (64 * this.hp) / this.unitType.hp
 
         if (!this.heathBarBorder) {
             this.heathBarBorder = this.scene.add.graphics()
@@ -115,8 +105,12 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
             this.heathBar = this.scene.add.graphics()
         }
 
+        let color = 0xff0000
+        if (this.team == Team.Left)
+            color = 0x0000ff
+
         this.heathBarBorder.clear().lineStyle(2, 0xffffff, 1).strokeRect(barX, barY, 64, 10)
-        this.heathBar.clear().fillStyle(0xff0000).fillRect(barX, barY, pixels, 10)
+        this.heathBar.clear().fillStyle(color).fillRect(barX, barY, pixels, 10)
     }
 
     getUnitInFront(allUnits: Unit[]): Unit {

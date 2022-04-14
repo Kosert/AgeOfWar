@@ -1,4 +1,4 @@
-const MatterGameObject = require("../node_modules/phaser/src/physics/matter-js/MatterGameObject")
+const MatterGameObject = require("../../node_modules/phaser/src/physics/matter-js/MatterGameObject")
 
 export interface MatterComponentsObject
     extends Phaser.GameObjects.GameObject,
