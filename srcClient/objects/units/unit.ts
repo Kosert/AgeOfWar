@@ -4,6 +4,7 @@ import { Team } from "../../data/team"
 import { UnitState } from "../../data/unit-state"
 import "../../util"
 import { UnitType } from "../../data/unit-type"
+import { RangeDetector } from "../range-detector"
 
 export abstract class Unit extends Phaser.Physics.Matter.Sprite {
     hp: number
@@ -12,6 +13,8 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
     heathBarBorder: Phaser.GameObjects.Graphics
 
     private bumper: Bumper
+    protected rangeDetector: RangeDetector
+
     constructor(scene: Scene, x: number, y: number, readonly team: Team, readonly unitType: UnitType) {
         super(scene.matter.world, x, y, "")
         this.hp = unitType.hp
@@ -22,6 +25,10 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         this.setSensor(true)
 
         this.bumper = new Bumper(scene, 0, y)
+        if (unitType.range) {
+            const range = unitType.range.range
+            this.rangeDetector = new RangeDetector(scene, 0, y, team == Team.Left ? range : -range)
+        }
         this.updateBumperPosition()
     }
 
@@ -45,7 +52,10 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
             case UnitState.Death:
                 this.setVelocityX(0)
                 break
-        }
+            case UnitState.Shoot:
+                this.setVelocityX(0)
+                break
+            }
 
         this.onUnitState(state)
     }
@@ -58,8 +68,9 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
 
         const inFront = this.getUnitInFront(allUnits)
         if (!inFront) {
-            //todo when to stop?
-            if (this.team == Team.Left && this.x > 1750) {
+            if (this.rangeDetector && this.isEnemyInRange(allUnits)) {
+                this.setUnitState(UnitState.Shoot)
+            } else if (this.team == Team.Left && this.x > 1750) {
                 this.setUnitState(UnitState.Idle)
             } else if (this.team == Team.Right && this.x < 200) {
                 this.setUnitState(UnitState.Idle)
@@ -70,7 +81,11 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         }
 
         if (inFront.team == this.team) {
-            this.setUnitState(UnitState.Idle)
+            if (this.rangeDetector && this.isEnemyInRange(allUnits)) {
+                this.setUnitState(UnitState.Shoot)
+            } else {
+                this.setUnitState(UnitState.Idle)
+            }
         } else {
             this.setUnitState(UnitState.Attack)
             if (this.handleAttack) {
@@ -81,16 +96,21 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
     }
 
     private updateBumperPosition() {
-        let bumperX: number
+        let modifier: number
         switch (this.team) {
             case Team.Left:
-                bumperX = this.x + this.unitType.unitWidth / 2
+                modifier = 1
                 break
             case Team.Right:
-                bumperX = this.x - this.unitType.unitWidth / 2
+                modifier = -1
                 break
         }
+
+        const bumperX = this.x + modifier * this.unitType.unitWidth / 2
         this.bumper.setX(bumperX)
+        if (this.rangeDetector) {
+            this.rangeDetector.setX(bumperX + modifier * this.unitType.range.range / 2)
+        }
     }
 
     private updateHpBars() {
@@ -121,7 +141,18 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         })
     }
 
+    isEnemyInRange(allUnits: Unit[]): boolean {
+        return allUnits.some((it) => {
+            if (it === this) return false
+            if (it.team == this.team) return false
+            // @ts-ignore
+            return this.scene.matter.overlap(this.rangeDetector.matter, it)
+        })
+    }
+
     destroy() {
+        this.bumper.destroy()
+        this.rangeDetector?.destroy()
         this.heathBar.destroy()
         this.heathBarBorder.destroy()
         super.destroy()

@@ -21,9 +21,25 @@ export class UnitType {
         speed: 3,
     }
 
+    static readonly Archer: UnitType = {
+        name: "archer",
+        visibleName: "Archer",
+        unitWidth: 80,
+        hp: 20,
+        dmgMin: 3,
+        dmgMax: 4,
+        speed: 3,
+        range: {
+            dmgMin: 7,
+            dmgMax: 8,
+            range: 200,
+        }
+    }
+
     static readonly values: UnitType[] = [
         UnitType.Warrior,
-        UnitType.Knight
+        UnitType.Knight,
+        UnitType.Archer,
     ]
 
     static byName(name: string): UnitType {
@@ -38,5 +54,12 @@ export class UnitType {
         readonly dmgMin: number,
         readonly dmgMax: number,
         readonly speed: number,
+        readonly range?: RangeAttack
     ) {}
+
+}
+export interface RangeAttack {
+    readonly dmgMin: number
+    readonly dmgMax: number
+    readonly range: number
 }

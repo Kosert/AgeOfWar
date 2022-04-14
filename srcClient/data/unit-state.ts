@@ -4,5 +4,6 @@ export enum UnitState {
     Run = "run",
     Attack = "attack",
     Death = "death",
+    Shoot = "shoot",
 
 }
