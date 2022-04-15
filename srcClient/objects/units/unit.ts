@@ -22,6 +22,7 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         super(scene.matter.world, x, y, "")
         this.hp = unitType.hp
 
+        this.setDepth(14)
         this.setFlipX(team == Team.Right)
         this.setRectangle(unitType.unitWidth, unitType.unitWidth)
         this.setFixedRotation()
@@ -118,10 +119,10 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         const pixels = (64 * this.hp) / this.unitType.hp
 
         if (!this.heathBarBorder) {
-            this.heathBarBorder = this.scene.add.graphics()
+            this.heathBarBorder = this.scene.add.graphics().setDepth(18)
         }
         if (!this.heathBar) {
-            this.heathBar = this.scene.add.graphics()
+            this.heathBar = this.scene.add.graphics().setDepth(19)
         }
 
         let color = 0xff0000

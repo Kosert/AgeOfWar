@@ -34,9 +34,9 @@ export class MainScene extends Scene {
 
         UnitType.values.forEach((it) => this.animationLoader.createAnimations(it))
 
-        this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x87ceeb).setOrigin(0, 0)
-        this.add.rectangle(0, this.cameras.main.height - 50, this.cameras.main.width, 50, 0x70483c).setOrigin(0, 0)
-        this.add.rectangle(0, this.cameras.main.height - 70, this.cameras.main.width, 20, 0x117c13).setOrigin(0, 0)
+        this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x87ceeb).setOrigin(0, 0).setDepth(0)
+        this.add.rectangle(0, this.cameras.main.height - 50, this.cameras.main.width, 50, 0x70483c).setOrigin(0, 0).setDepth(1)
+        this.add.rectangle(0, this.cameras.main.height - 70, this.cameras.main.width, 20, 0x117c13).setOrigin(0, 0).setDepth(1)
 
         const self = this
 

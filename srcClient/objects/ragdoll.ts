@@ -6,6 +6,7 @@ export class Ragdoll extends Phaser.GameObjects.Sprite {
     constructor(scene: Scene, unit: Unit) {
         super(scene, unit.x, unit.y, unit.unitType.name + "_death")
         this.flipX = unit.flipX
+        this.setDepth(13)
         this.anims.play(unit.unitType.name + "_death")
     }
 

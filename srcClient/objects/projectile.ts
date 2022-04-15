@@ -13,6 +13,7 @@ export class Projectile extends Phaser.Physics.Matter.Image {
     constructor(scene: Scene, x: number, y: number, readonly team: Team, readonly range: RangeAttack) {
         super(scene.matter.world, x, y, "arrow")
         this.setRectangle(30, 15, { isSensor: true })
+        this.setDepth(15)
         this.setFlipX(team == Team.Right)
         this.startingX = x
 
