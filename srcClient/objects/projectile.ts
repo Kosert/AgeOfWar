@@ -5,11 +5,13 @@ import { Unit } from "./units/unit"
 
 export class Projectile extends Phaser.Physics.Matter.Image {
 
+    readonly projectileSpeed = 7
+
     isActive = true
 
     constructor(scene: Scene, x: number, y: number, readonly team: Team, readonly range: RangeAttack) {
         super(scene.matter.world, x, y, "arrow")
-        this.setRectangle(50, 15, { isSensor: true })
+        this.setRectangle(30, 15, { isSensor: true })
         this.setFlipX(team == Team.Right)
 
         const self = this
@@ -27,9 +29,11 @@ export class Projectile extends Phaser.Physics.Matter.Image {
     }
 
     update() {
-        if (this.isActive) 
-            this.setVelocityX(this.team == Team.Left ? 5 : -5)
-        else 
+        if (this.isActive) {
+            const teamModifer = this.team == Team.Left ? 1 : -1
+            this.setVelocityX(teamModifer * this.projectileSpeed)
+        } else {
             this.setVelocityX(0)
+        }
     }
 }

@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
-import { MatterComponentsObject } from "./matter-object";
-import { Unit } from "./units/unit";
+import { MatterComponentsObject } from "../matter-object";
+import { Unit } from "../units/unit";
 
 export class Bumper extends Phaser.GameObjects.Rectangle {
 

@@ -4,7 +4,6 @@ import { UnitState } from "../../data/unit-state"
 import { UnitType } from "../../data/unit-type"
 import { MainScene } from "../../main-scene"
 import { Projectile } from "../projectile"
-import { RangeDetector } from "../range-detector"
 import { Unit } from "./unit"
 
 export class Archer extends Unit {

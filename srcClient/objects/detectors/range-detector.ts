@@ -1,5 +1,5 @@
 import { Scene } from "phaser"
-import { MatterComponentsObject } from "./matter-object"
+import { MatterComponentsObject } from "../matter-object"
 
 export class RangeDetector extends Phaser.GameObjects.Rectangle {
     matter: MatterComponentsObject

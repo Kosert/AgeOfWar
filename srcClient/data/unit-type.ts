@@ -8,6 +8,7 @@ export class UnitType {
         hp: 30,
         dmgMin: 4,
         dmgMax: 6,
+        attackSpeed: 2,
         speed: 3,
     }
 
@@ -16,9 +17,10 @@ export class UnitType {
         visibleName: "Knight",
         unitWidth: 80,
         hp: 60,
-        dmgMin: 6,
-        dmgMax: 7,
-        speed: 3,
+        dmgMin: 8,
+        dmgMax: 10,
+        attackSpeed: 1.1,
+        speed: 1.5,
     }
 
     static readonly Archer: UnitType = {
@@ -28,10 +30,12 @@ export class UnitType {
         hp: 20,
         dmgMin: 3,
         dmgMax: 4,
+        attackSpeed: 1.4,
         speed: 3,
         range: {
             dmgMin: 7,
             dmgMax: 8,
+            attackSpeed: 1,
             range: 200,
         }
     }
@@ -53,13 +57,15 @@ export class UnitType {
         readonly hp: number,
         readonly dmgMin: number,
         readonly dmgMax: number,
+        readonly attackSpeed: number,
         readonly speed: number,
-        readonly range?: RangeAttack
+        readonly range?: RangeAttack,
     ) {}
 
 }
 export interface RangeAttack {
     readonly dmgMin: number
     readonly dmgMax: number
+    readonly attackSpeed: number
     readonly range: number
 }

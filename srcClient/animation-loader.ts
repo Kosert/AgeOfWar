@@ -66,22 +66,26 @@ export class AnimationLoader {
             frameRate: 8,
             repeat: 0,
         })
+
+        const attackSpeed = UnitType.Warrior.attackSpeed
+        const attackFrames = 4
+        const animSpeed = attackFrames * attackSpeed
         this.scene.anims.create({
             key: "warrior_attack_1",
-            frames: this.scene.anims.generateFrameNumbers("warrior_attack_1", { start: 0, end: 3 }),
-            frameRate: 8,
+            frames: this.scene.anims.generateFrameNumbers("warrior_attack_1", { start: 0, end: attackFrames - 1 }),
+            frameRate: animSpeed,
             repeat: 0,
         })
         this.scene.anims.create({
             key: "warrior_attack_2",
-            frames: this.scene.anims.generateFrameNumbers("warrior_attack_2", { start: 0, end: 3 }),
-            frameRate: 8,
+            frames: this.scene.anims.generateFrameNumbers("warrior_attack_2", { start: 0, end: attackFrames - 1 }),
+            frameRate: animSpeed,
             repeat: 0,
         })
         this.scene.anims.create({
             key: "warrior_attack_3",
-            frames: this.scene.anims.generateFrameNumbers("warrior_attack_3", { start: 0, end: 3 }),
-            frameRate: 8,
+            frames: this.scene.anims.generateFrameNumbers("warrior_attack_3", { start: 0, end: attackFrames - 1 }),
+            frameRate: animSpeed,
             repeat: 0,
         })
     }
@@ -91,7 +95,7 @@ export class AnimationLoader {
         this.scene.anims.create({
             key: `${name}_run`,
             frames: this.scene.anims.generateFrameNumbers(`${name}_run`, { start: 0, end: 9 }),
-            frameRate: 10,
+            frameRate: 8,
             repeat: -1,
         })
         this.scene.anims.create({
@@ -106,22 +110,26 @@ export class AnimationLoader {
             frameRate: 8,
             repeat: 0,
         })
+
+        const attackSpeed = UnitType.Knight.attackSpeed
+        const attackFrames = 6
+        const animSpeed = attackFrames * attackSpeed
         this.scene.anims.create({
             key: `${name}_attack_1`,
-            frames: this.scene.anims.generateFrameNumbers(`${name}_attack_1`, { start: 0, end: 5 }),
-            frameRate: 8,
+            frames: this.scene.anims.generateFrameNumbers(`${name}_attack_1`, { start: 0, end: attackFrames - 1 }),
+            frameRate: animSpeed,
             repeat: 0,
         })
         this.scene.anims.create({
             key: `${name}_attack_2`,
-            frames: this.scene.anims.generateFrameNumbers(`${name}_attack_2`, { start: 0, end: 5 }),
-            frameRate: 8,
+            frames: this.scene.anims.generateFrameNumbers(`${name}_attack_2`, { start: 0, end: attackFrames - 1 }),
+            frameRate: animSpeed,
             repeat: 0,
         })
         this.scene.anims.create({
             key: `${name}_attack_3`,
-            frames: this.scene.anims.generateFrameNumbers(`${name}_attack_3`, { start: 0, end: 5 }),
-            frameRate: 8,
+            frames: this.scene.anims.generateFrameNumbers(`${name}_attack_3`, { start: 0, end: attackFrames - 1 }),
+            frameRate: animSpeed,
             repeat: 0,
         })
     }
@@ -146,16 +154,24 @@ export class AnimationLoader {
             frameRate: 12,
             repeat: 0,
         })
+
+        const attackSpeed = UnitType.Archer.attackSpeed
+        const attackFrames = 14
+        const animSpeed = attackFrames * attackSpeed
         this.scene.anims.create({
             key: `${name}_attack_1`,
             frames: this.scene.anims.generateFrameNumbers(`${name}_attack_1`, { start: 0, end: 13 }),
-            frameRate: 20,
+            frameRate: animSpeed,
             repeat: 0,
         })
+
+        const shootSpeed = UnitType.Archer.range.attackSpeed
+        const shootFrames = 13
+        const shootAnimSpeed = shootFrames * shootSpeed
         this.scene.anims.create({
             key: `${name}_shoot_1`,
             frames: this.scene.anims.generateFrameNumbers(`${name}_shoot_1`, { start: 0, end: 12 }),
-            frameRate: 13,
+            frameRate: shootAnimSpeed,
             repeat: 0,
         })
     }

@@ -1,18 +1,21 @@
 import { Scene } from "phaser"
-import { Bumper } from "../bumper"
+import { Bumper } from "../detectors/bumper"
 import { Team } from "../../data/team"
 import { UnitState } from "../../data/unit-state"
 import "../../util"
 import { UnitType } from "../../data/unit-type"
-import { RangeDetector } from "../range-detector"
+import { RangeDetector } from "../detectors/range-detector"
+import { NearbyDetector } from "../detectors/nearby-bumper"
 
 export abstract class Unit extends Phaser.Physics.Matter.Sprite {
     hp: number
+    speed: number
 
     heathBar: Phaser.GameObjects.Graphics
     heathBarBorder: Phaser.GameObjects.Graphics
 
     private bumper: Bumper
+    private nearbyDetector: NearbyDetector
     protected rangeDetector: RangeDetector
 
     constructor(scene: Scene, x: number, y: number, readonly team: Team, readonly unitType: UnitType) {
@@ -25,6 +28,7 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         this.setSensor(true)
 
         this.bumper = new Bumper(scene, 0, y)
+        this.nearbyDetector = new NearbyDetector(scene, 0, y)
         if (unitType.range) {
             const range = unitType.range.range
             this.rangeDetector = new RangeDetector(scene, 0, y, team == Team.Left ? range : -range)
@@ -35,27 +39,18 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
     protected handleAttack: boolean = false
     protected currentState: UnitState
     private setUnitState(state: UnitState) {
-
-        let animVariants = [""]
         switch (state) {
-            case UnitState.Idle:
-                this.setVelocityX(0)
-                break
             case UnitState.Run:
-                const velocity = this.team == Team.Right ? -this.unitType.speed : this.unitType.speed
-                this.setVelocityX(velocity)
+                const teamModifier = this.team == Team.Right ? -1 : 1
+                this.setVelocityX(this.speed * teamModifier)
                 break
+            case UnitState.Idle:
             case UnitState.Attack:
-                this.setVelocityX(0)
-                animVariants = ["_1", "_2", "_3"]
-                break
             case UnitState.Death:
-                this.setVelocityX(0)
-                break
             case UnitState.Shoot:
                 this.setVelocityX(0)
                 break
-            }
+        }
 
         this.onUnitState(state)
     }
@@ -75,6 +70,7 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
             } else if (this.team == Team.Right && this.x < 200) {
                 this.setUnitState(UnitState.Idle)
             } else {
+                this.updateMaxSpeed(allUnits)
                 this.setUnitState(UnitState.Run)
             }
             return
@@ -89,7 +85,9 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         } else {
             this.setUnitState(UnitState.Attack)
             if (this.handleAttack) {
-                inFront.hp = (inFront.hp - Phaser.Math.RND.between(this.unitType.dmgMin, this.unitType.dmgMax)).coerceAtLeast(0)
+                inFront.hp = (
+                    inFront.hp - Phaser.Math.RND.between(this.unitType.dmgMin, this.unitType.dmgMax)
+                ).coerceAtLeast(0)
                 this.handleAttack = false
             }
         }
@@ -106,10 +104,11 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
                 break
         }
 
-        const bumperX = this.x + modifier * this.unitType.unitWidth / 2
+        const bumperX = this.x + (modifier * this.unitType.unitWidth) / 2
         this.bumper.setX(bumperX)
+        this.nearbyDetector.setX(bumperX)
         if (this.rangeDetector) {
-            this.rangeDetector.setX(bumperX + modifier * this.unitType.range.range / 2)
+            this.rangeDetector.setX(bumperX + (modifier * this.unitType.range.range) / 2)
         }
     }
 
@@ -126,14 +125,13 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         }
 
         let color = 0xff0000
-        if (this.team == Team.Left)
-            color = 0x0000ff
+        if (this.team == Team.Left) color = 0x0000ff
 
         this.heathBarBorder.clear().lineStyle(2, 0xffffff, 1).strokeRect(barX, barY, 64, 10)
         this.heathBar.clear().fillStyle(color).fillRect(barX, barY, pixels, 10)
     }
 
-    getUnitInFront(allUnits: Unit[]): Unit {
+    private getUnitInFront(allUnits: Unit[]): Unit {
         return allUnits.find((it) => {
             if (it === this) return false
             // @ts-ignore
@@ -141,7 +139,7 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         })
     }
 
-    isEnemyInRange(allUnits: Unit[]): boolean {
+    private isEnemyInRange(allUnits: Unit[]): boolean {
         return allUnits.some((it) => {
             if (it === this) return false
             if (it.team == this.team) return false
@@ -150,8 +148,19 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         })
     }
 
+    private updateMaxSpeed(allUnits: Unit[]) {
+        const slowestNearby = allUnits.filter((it) => {
+            if (it === this) return false
+            // @ts-ignore
+            return this.scene.matter.overlap(this.nearbyDetector.matter, it)
+        }).minBy(it => it.unitType.speed)?.speed
+        
+        this.speed = this.unitType.speed.coerceAtMost(slowestNearby)
+    }
+
     destroy() {
         this.bumper.destroy()
+        this.nearbyDetector.destroy()
         this.rangeDetector?.destroy()
         this.heathBar.destroy()
         this.heathBarBorder.destroy()
