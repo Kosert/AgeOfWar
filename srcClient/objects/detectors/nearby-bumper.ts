@@ -11,7 +11,7 @@ export class NearbyDetector extends Phaser.GameObjects.Rectangle {
         this.matter = MatterComponentsObject.create(scene.matter.world, this)
         this.matter.setRectangle(30, 80, { isSensor: true })
 
-        //this.setFillStyle(0xff0000, 0.1)
-        //this.scene.add.existing(this)
+        // this.setFillStyle(0xff0000, 0.1)
+        // this.scene.add.existing(this)
     }
 }
