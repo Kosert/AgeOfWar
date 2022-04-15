@@ -1,5 +1,5 @@
 import "phaser"
-import { MainScene } from "./main-scene"
+import { PlaygroundBattleScene } from "./scenes/playground-scene"
 
 // main game configuration
 const config: Phaser.Types.Core.GameConfig = {
@@ -15,7 +15,7 @@ const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     parent: "game",
     render: { pixelArt: false, antialias: true },
-    scene: MainScene,
+    scene: PlaygroundBattleScene,
     input: {
         keyboard: true,
         mouse: true,

@@ -2,7 +2,7 @@ import { Scene } from "phaser"
 import { Team } from "../../data/team"
 import { UnitState } from "../../data/unit-state"
 import { UnitType } from "../../data/unit-type"
-import { MainScene } from "../../main-scene"
+import { PlaygroundBattleScene } from "../../scenes/playground-scene"
 import { Projectile } from "../projectile"
 import { Unit } from "./unit"
 
@@ -25,7 +25,7 @@ export class Archer extends Unit {
         }
         if (this.currentState == UnitState.Shoot && frameIndex != this.lastFrameIndex && frameIndex == 11) {
             const arrow = new Projectile(this.scene, this.x, this.y - 20, this.team, this.unitType.range);
-            (this.scene as MainScene).onNewProjectile(arrow)
+            (this.scene as PlaygroundBattleScene).onNewProjectile(arrow)
         }
         this.lastFrameIndex = frameIndex
 
