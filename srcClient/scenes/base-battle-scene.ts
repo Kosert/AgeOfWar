@@ -6,6 +6,9 @@ import "util"
 import { AnimationLoader } from "../animation-loader"
 import { UnitType } from "../data/unit-type"
 import { Projectile } from "../objects/projectile"
+import { Gate } from "../objects/gate"
+import { Team } from "../data/team"
+import { Hitable } from "../objects/hitable"
 
 export abstract class BaseBattleScene extends Scene {
     private fpsText: FpsText
@@ -19,14 +22,22 @@ export abstract class BaseBattleScene extends Scene {
     preload() {
         UnitType.values.forEach((it) => this.animationLoader.preload(it))
         this.load.image("arrow", "assets/archer/Arrow.png")
+        this.load.image("gate_back", "assets/gate_back.png")
+        this.load.image("gate_front", "assets/gate_front.png")
     }
 
     protected readonly units: Unit[] = []
     protected readonly projectiles: Projectile[] = []
 
+    protected gateLeft: Gate
+    protected gateRight: Gate
+
     create() {
         this.matter.world.setBounds(0, 0, this.cameras.main.width, this.cameras.main.height - 60)
         this.fpsText = new FpsText(this)
+
+        this.gateLeft = new Gate(this, 100, Team.Left)
+        this.gateRight = new Gate(this, this.cameras.main.width - 100, Team.Right)
 
         UnitType.values.forEach((it) => this.animationLoader.createAnimations(it))
 
@@ -52,11 +63,17 @@ export abstract class BaseBattleScene extends Scene {
     update(time: number, delta: number) {
         this.fpsText.update()
 
+        this.gateLeft.updateHpBar()
+        this.gateRight.updateHpBar()
+
         for (let i = 0; i < this.units.length; i++) {
             const unit = this.units[i]
-            unit.update(this.units)
+            const hitablesLeft = (this.units as Hitable[]).concat(this.gateRight)
+            const hitablesRight = (this.units as Hitable[]).concat(this.gateLeft)
+            if (unit.team == Team.Left) unit.update(hitablesLeft)
+            else unit.update(hitablesRight)
 
-            if (unit.hp == 0) {
+            if (!unit.isAlive()) {
                 const ragdoll = new Ragdoll(this, unit)
                 this.add.existing(ragdoll)
                 unit.destroy()

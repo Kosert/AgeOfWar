@@ -1,7 +1,7 @@
 import { Scene } from "phaser"
 import { Team } from "../data/team"
 import { RangeAttack } from "../data/unit-type"
-import { Unit } from "./units/unit"
+import { Hitable } from "./hitable"
 
 export class Projectile extends Phaser.Physics.Matter.Image {
 
@@ -23,9 +23,13 @@ export class Projectile extends Phaser.Physics.Matter.Image {
             if (event.bodyA.gameObject === self) other = event.bodyB.gameObject
             else other = event.bodyA.gameObject
 
-            if (other instanceof Unit && other.team != team && other.hp > 0 && self.isActive) {
-                const dmg = Phaser.Math.RND.between(self.range.dmgMin, self.range.dmgMax).coerceAtLeast(0)
-                other.hp = (other.hp - dmg).coerceAtLeast(0)
+            // because typescript can't do `instanceof Hitable`...
+            if (typeof other["dealDamage"] !== "function") {
+                return
+            }
+            const hitable = other as unknown as Hitable
+            if (hitable.team != team && hitable.isAlive() && self.isActive) {
+                hitable.dealDamage(self.range.dmgMin, self.range.dmgMax)
                 self.isActive = false
             }
         })

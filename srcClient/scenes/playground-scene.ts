@@ -65,9 +65,9 @@ export class PlaygroundBattleScene extends BaseBattleScene {
     private getSpawnPosition(team: Team) {
         let defaultPosition: number
         if (team == Team.Left) 
-            defaultPosition = 110
+            defaultPosition = 30
         else 
-            defaultPosition = this.cameras.main.width - 110
+            defaultPosition = this.cameras.main.width - 30
 
         const positions = this.units
             .filter((it) => it.team == team)

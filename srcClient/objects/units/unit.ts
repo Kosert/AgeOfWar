@@ -6,17 +6,19 @@ import "../../util"
 import { UnitType } from "../../data/unit-type"
 import { RangeDetector } from "../detectors/range-detector"
 import { NearbyDetector } from "../detectors/nearby-bumper"
+import { Hitable } from "../hitable"
 
-export abstract class Unit extends Phaser.Physics.Matter.Sprite {
-    hp: number
-    speed: number
+export abstract class Unit extends Phaser.Physics.Matter.Sprite implements Hitable {
+    
+    protected hp: number
+    protected speed: number
 
-    heathBar: Phaser.GameObjects.Graphics
-    heathBarBorder: Phaser.GameObjects.Graphics
+    private heathBar: Phaser.GameObjects.Graphics
+    private heathBarBorder: Phaser.GameObjects.Graphics
 
     private bumper: Bumper
     private nearbyDetector: NearbyDetector
-    protected rangeDetector: RangeDetector
+    private rangeDetector: RangeDetector
 
     constructor(scene: Scene, x: number, y: number, readonly team: Team, readonly unitType: UnitType) {
         super(scene.matter.world, x, y, "")
@@ -58,27 +60,38 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
 
     abstract onUnitState(state: UnitState)
 
-    update(allUnits: Unit[]) {
+    isAlive(): boolean {
+        return this.hp > 0
+    }
+
+    dealDamage(dmgMin: number, dmgMax?: number) {
+        if (!dmgMax)
+            dmgMax = dmgMin
+        const dmg = Phaser.Math.RND.between(dmgMin, dmgMax)
+        this.hp = (this.hp - dmg).coerceAtLeast(0)
+    }
+
+    update(hitables: Hitable[]) {
         this.updateBumperPosition()
         this.updateHpBars()
 
-        const inFront = this.getUnitInFront(allUnits)
+        const inFront = this.getUnitInFront(hitables)
         if (!inFront) {
-            if (this.rangeDetector && this.isEnemyInRange(allUnits)) {
+            if (this.rangeDetector && this.isEnemyInRange(hitables)) {
                 this.setUnitState(UnitState.Shoot)
-            } else if (this.team == Team.Left && this.x > 1750) {
-                this.setUnitState(UnitState.Idle)
-            } else if (this.team == Team.Right && this.x < 200) {
-                this.setUnitState(UnitState.Idle)
+            // } else if (this.team == Team.Left && this.x > 1700) {
+                // this.setUnitState(UnitState.Idle)
+            // } else if (this.team == Team.Right && this.x < 200) {
+                // this.setUnitState(UnitState.Idle)
             } else {
-                this.updateMaxSpeed(allUnits)
+                this.updateMaxSpeed(hitables)
                 this.setUnitState(UnitState.Run)
             }
             return
         }
 
         if (inFront.team == this.team) {
-            if (this.rangeDetector && this.isEnemyInRange(allUnits)) {
+            if (this.rangeDetector && this.isEnemyInRange(hitables)) {
                 this.setUnitState(UnitState.Shoot)
             } else {
                 this.setUnitState(UnitState.Idle)
@@ -86,9 +99,7 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         } else {
             this.setUnitState(UnitState.Attack)
             if (this.handleAttack) {
-                inFront.hp = (
-                    inFront.hp - Phaser.Math.RND.between(this.unitType.dmgMin, this.unitType.dmgMax)
-                ).coerceAtLeast(0)
+                inFront.dealDamage(this.unitType.dmgMin, this.unitType.dmgMax)
                 this.handleAttack = false
             }
         }
@@ -132,7 +143,7 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         this.heathBar.clear().fillStyle(color).fillRect(barX, barY, pixels, 10)
     }
 
-    private getUnitInFront(allUnits: Unit[]): Unit {
+    private getUnitInFront(allUnits: Hitable[]): Hitable {
         return allUnits.find((it) => {
             if (it === this) return false
             // @ts-ignore
@@ -140,7 +151,7 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         })
     }
 
-    private isEnemyInRange(allUnits: Unit[]): boolean {
+    private isEnemyInRange(allUnits: Hitable[]): boolean {
         return allUnits.some((it) => {
             if (it === this) return false
             if (it.team == this.team) return false
@@ -149,12 +160,15 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite {
         })
     }
 
-    private updateMaxSpeed(allUnits: Unit[]) {
-        const slowestNearby = allUnits.filter((it) => {
+    private updateMaxSpeed(hitables: Hitable[]) {
+        const units = hitables.filter(it => it instanceof Unit) as Unit[]
+        const slowestNearby = units.filter((it) => {
             if (it === this) return false
+            if (it.team != this.team) return false
             // @ts-ignore
             return this.scene.matter.overlap(this.nearbyDetector.matter, it)
-        }).minBy(it => it.unitType.speed)?.speed
+        })
+        .minBy(it => it.unitType.speed)?.speed
         
         this.speed = this.unitType.speed.coerceAtMost(slowestNearby)
     }
