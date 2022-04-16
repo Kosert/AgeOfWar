@@ -24,7 +24,7 @@ export class Projectile extends Phaser.Physics.Matter.Image {
             else other = event.bodyA.gameObject
 
             // because typescript can't do `instanceof Hitable`...
-            if (typeof other["dealDamage"] !== "function") {
+            if (!other || typeof other["dealDamage"] !== "function") {
                 return
             }
             const hitable = other as unknown as Hitable
