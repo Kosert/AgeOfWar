@@ -1,4 +1,5 @@
 import "phaser"
+import { MainMenuScene } from "./scenes/main-scene"
 import { PlaygroundBattleScene } from "./scenes/playground-scene"
 
 // main game configuration
@@ -14,21 +15,19 @@ const config: Phaser.Types.Core.GameConfig = {
     fps: { target: 30 },
     type: Phaser.AUTO,
     parent: "game",
-    render: { pixelArt: false, antialias: true },
-    scene: PlaygroundBattleScene,
+    render: { 
+        pixelArt: false,
+        antialias: true,
+        roundPixels: true,
+    },
+    scene: [ MainMenuScene, PlaygroundBattleScene],
     input: {
         keyboard: true,
         mouse: true,
         touch: false,
         gamepad: false,
     },
-    physics: {
-        default: "matter",
-        matter: {
-            debug: false,
-            gravity: { x: 0, y: 0 },
-        },
-    },
+    physics: null // avoid adding physics engine where its not needed i.e. MainMenuScene
 }
 
 // game class
@@ -38,27 +37,9 @@ export class Game extends Phaser.Game {
     }
 }
 
-// when the page is loaded, create our game instance
 window.addEventListener("load", () => {
-    var game = new Game(config)
-    // game.canvas.classList.add("constraintedCanvas")
-
-    // brzydki hax na złe coordy myszki
-    // setTimeout(function() {
-    //     document.body.style.height = "auto"
-    //     setTimeout(function() {
-    //         document.body.style.height = "100%"
-    //     }, 1000)
-    // }, 2000)
+    const game = new Game(config)
 })
-
-// document.addEventListener("fullscreenchange", (event) => {
-//     if (document.fullscreenElement) {
-//         document.getElementsByTagName("canvas")[0].classList.remove("constraintedCanvas")
-//     } else {
-//         document.getElementsByTagName("canvas")[0].classList.add("constraintedCanvas")
-//     }
-// })
 
 window.initPrefs = function(type: string, defaultValue: string) {
     const current = localStorage.getItem(type)

@@ -79,10 +79,6 @@ export abstract class Unit extends Phaser.Physics.Matter.Sprite implements Hitab
         if (!inFront) {
             if (this.rangeDetector && this.isEnemyInRange(hitables)) {
                 this.setUnitState(UnitState.Shoot)
-            // } else if (this.team == Team.Left && this.x > 1700) {
-                // this.setUnitState(UnitState.Idle)
-            // } else if (this.team == Team.Right && this.x < 200) {
-                // this.setUnitState(UnitState.Idle)
             } else {
                 this.updateMaxSpeed(hitables)
                 this.setUnitState(UnitState.Run)

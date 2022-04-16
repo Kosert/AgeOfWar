@@ -9,13 +9,24 @@ import { Projectile } from "../objects/projectile"
 import { Gate } from "../objects/gate"
 import { Team } from "../data/team"
 import { Hitable } from "../objects/hitable"
+import { GameSettings } from "./game-settings"
 
 export abstract class BaseBattleScene extends Scene {
-    private fpsText: FpsText
     private animationLoader: AnimationLoader
 
     constructor(config: string | Phaser.Types.Scenes.SettingsConfig) {
-        super(config)
+        super(
+            Object.assign(config, {
+                physics: {
+                    default: "matter",
+                    matter: {
+                        debug: false,
+                        gravity: { x: 0, y: 0 },
+                    },
+                },
+            })
+        )
+
         this.animationLoader = new AnimationLoader(this)
     }
 
@@ -28,31 +39,41 @@ export abstract class BaseBattleScene extends Scene {
         this.load.image("rubble_front", "assets/gate/rubble_front.png")
     }
 
+    private fpsText: FpsText
+    protected gameSettings: GameSettings
+
     protected readonly units: Unit[] = []
     protected readonly projectiles: Projectile[] = []
 
     protected gateLeft?: Gate
     protected gateRight?: Gate
 
-    create() {
-        this.matter.world.setBounds(0, 0, this.cameras.main.width, this.cameras.main.height - 60)
+    protected keyLeft: Phaser.Input.Keyboard.Key
+    protected keyRight: Phaser.Input.Keyboard.Key
+
+    create(data: GameSettings) {
+        this.gameSettings = data ?? { mapSize: 1920 }
+        this.matter.world.setBounds(0, 0, this.gameSettings.mapSize, this.cameras.main.height - 60)
         this.fpsText = new FpsText(this)
 
+        this.keyLeft = this.input.keyboard.addKey("A")
+        this.keyRight = this.input.keyboard.addKey("D")
+
         this.gateLeft = new Gate(this, 100, Team.Left)
-        this.gateRight = new Gate(this, this.cameras.main.width - 100, Team.Right)
+        this.gateRight = new Gate(this, this.gameSettings.mapSize - 100, Team.Right)
 
         UnitType.values.forEach((it) => this.animationLoader.createAnimations(it))
 
         this.add
-            .rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x87ceeb)
+            .rectangle(0, 0, this.gameSettings.mapSize, this.cameras.main.height, 0x87ceeb)
             .setOrigin(0, 0)
             .setDepth(0)
         this.add
-            .rectangle(0, this.cameras.main.height - 50, this.cameras.main.width, 50, 0x70483c)
+            .rectangle(0, this.cameras.main.height - 50, this.gameSettings.mapSize, 50, 0x70483c)
             .setOrigin(0, 0)
             .setDepth(1)
         this.add
-            .rectangle(0, this.cameras.main.height - 70, this.cameras.main.width, 20, 0x117c13)
+            .rectangle(0, this.cameras.main.height - 70, this.gameSettings.mapSize, 20, 0x117c13)
             .setOrigin(0, 0)
             .setDepth(1)
     }
@@ -105,5 +126,13 @@ export abstract class BaseBattleScene extends Scene {
                 i--
             }
         }
+
+        let scrollValue = 0
+        if (this.keyLeft.isDown) scrollValue -= 5
+        if (this.keyRight.isDown) scrollValue += 5
+        this.cameras.main.scrollX = (this.cameras.main.scrollX + scrollValue).coerceIn(
+            0,
+            this.gameSettings.mapSize - this.cameras.main.width
+        )
     }
 }
