@@ -10,8 +10,12 @@ import { Gate } from "../objects/gate"
 import { Team } from "../data/team"
 import { Hitable } from "../objects/hitable"
 import { GameSettings } from "./game-settings"
+import { PauseMenuScene } from "./pause-scene"
 
 export abstract class BaseBattleScene extends Scene {
+
+    abstract readonly sceneKey: string
+
     private animationLoader: AnimationLoader
 
     constructor(config: string | Phaser.Types.Scenes.SettingsConfig) {
@@ -50,14 +54,21 @@ export abstract class BaseBattleScene extends Scene {
 
     protected keyLeft: Phaser.Input.Keyboard.Key
     protected keyRight: Phaser.Input.Keyboard.Key
+    protected keyPause: Phaser.Input.Keyboard.Key
 
     create(data: GameSettings) {
-        this.gameSettings = data ?? { mapSize: 1920 }
+        this.gameSettings = data ?? GameSettings.default
         this.matter.world.setBounds(0, 0, this.gameSettings.mapSize, this.cameras.main.height - 60)
         this.fpsText = new FpsText(this)
 
         this.keyLeft = this.input.keyboard.addKey("A")
         this.keyRight = this.input.keyboard.addKey("D")
+        this.keyPause = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
+        const self = this
+        this.keyPause.on("up", function(event: KeyboardEvent) {
+            self.scene.pause(self.sceneKey)
+            self.scene.run(PauseMenuScene.sceneKey)
+        })
 
         this.gateLeft = new Gate(this, 100, Team.Left)
         this.gateRight = new Gate(this, this.gameSettings.mapSize - 100, Team.Right)
@@ -128,8 +139,8 @@ export abstract class BaseBattleScene extends Scene {
         }
 
         let scrollValue = 0
-        if (this.keyLeft.isDown) scrollValue -= 5
-        if (this.keyRight.isDown) scrollValue += 5
+        if (this.keyLeft.isDown) scrollValue -= 10
+        if (this.keyRight.isDown) scrollValue += 10
         this.cameras.main.scrollX = (this.cameras.main.scrollX + scrollValue).coerceIn(
             0,
             this.gameSettings.mapSize - this.cameras.main.width

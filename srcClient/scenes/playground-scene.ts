@@ -8,8 +8,11 @@ import { GameSettings } from "./game-settings"
 
 export class PlaygroundBattleScene extends BaseBattleScene {
 
+    static readonly sceneKey: string = "PlaygroundBattleScene"
+    readonly sceneKey: string = PlaygroundBattleScene.sceneKey
+
     constructor() {
-        super({ key: "PlaygroundBattleScene" })
+        super({ key: PlaygroundBattleScene.sceneKey })
     }
 
     create(data: GameSettings) {

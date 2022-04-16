@@ -9,7 +9,7 @@ export class MainMenuScene extends Scene {
     }
 
     create() {
-        const gameSettings: GameSettings = { mapSize: 2500 }
+        const gameSettings: GameSettings = { mapSize: 1920 }
         this.scene.start("PlaygroundBattleScene", gameSettings)
     }
 

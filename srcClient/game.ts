@@ -1,5 +1,6 @@
 import "phaser"
 import { MainMenuScene } from "./scenes/main-scene"
+import { PauseMenuScene } from "./scenes/pause-scene"
 import { PlaygroundBattleScene } from "./scenes/playground-scene"
 
 // main game configuration
@@ -20,7 +21,7 @@ const config: Phaser.Types.Core.GameConfig = {
         antialias: true,
         roundPixels: true,
     },
-    scene: [ MainMenuScene, PlaygroundBattleScene],
+    scene: [ MainMenuScene, PlaygroundBattleScene, PauseMenuScene],
     input: {
         keyboard: true,
         mouse: true,
