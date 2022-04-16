@@ -4,7 +4,9 @@ import { Hitable } from "./hitable"
 
 export class Gate extends Phaser.Physics.Matter.Image implements Hitable {
 
-    private hp: number = 500
+    private readonly maxHP = 300
+
+    private hp: number = this.maxHP
     private backImage: Phaser.GameObjects.Image
     private frontImage: Phaser.GameObjects.Image
 
@@ -19,13 +21,13 @@ export class Gate extends Phaser.Physics.Matter.Image implements Hitable {
             .image(x, this.y + 80, "gate_front")
             .setOrigin(0.5, 1)
             .setFlipX(team == Team.Right)
-            .setDepth(10)
+            .setDepth(20)
 
         this.backImage = scene.add
             .image(x, this.y + 80, "gate_back")
             .setOrigin(0.5, 1)
             .setFlipX(team == Team.Right)
-            .setDepth(20)
+            .setDepth(10)
     }
  
     isAlive(): boolean {
@@ -42,7 +44,7 @@ export class Gate extends Phaser.Physics.Matter.Image implements Hitable {
     updateHpBar() {
         const barX = this.x - 8
         const barY = this.y - 200
-        const pixels = (200 * this.hp) / 500
+        const pixels = (200 * this.hp) / this.maxHP
 
         if (!this.heathBarBorder) {
             this.heathBarBorder = this.scene.add.graphics().setDepth(18)
@@ -58,4 +60,10 @@ export class Gate extends Phaser.Physics.Matter.Image implements Hitable {
         this.heathBar.clear().fillStyle(color).fillRect(barX, barY, 16, -pixels)
     }
 
+    destroy() {
+        this.updateHpBar()
+        this.frontImage.setTexture("rubble_front")
+        this.backImage.setTexture("rubble_back")
+        super.destroy()
+    }
 }

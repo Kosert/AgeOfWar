@@ -22,15 +22,17 @@ export abstract class BaseBattleScene extends Scene {
     preload() {
         UnitType.values.forEach((it) => this.animationLoader.preload(it))
         this.load.image("arrow", "assets/archer/Arrow.png")
-        this.load.image("gate_back", "assets/gate_back.png")
-        this.load.image("gate_front", "assets/gate_front.png")
+        this.load.image("gate_back", "assets/gate/gate_back.png")
+        this.load.image("gate_front", "assets/gate/gate_front.png")
+        this.load.image("rubble_back", "assets/gate/rubble_back.png")
+        this.load.image("rubble_front", "assets/gate/rubble_front.png")
     }
 
     protected readonly units: Unit[] = []
     protected readonly projectiles: Projectile[] = []
 
-    protected gateLeft: Gate
-    protected gateRight: Gate
+    protected gateLeft?: Gate
+    protected gateRight?: Gate
 
     create() {
         this.matter.world.setBounds(0, 0, this.cameras.main.width, this.cameras.main.height - 60)
@@ -63,15 +65,26 @@ export abstract class BaseBattleScene extends Scene {
     update(time: number, delta: number) {
         this.fpsText.update()
 
-        this.gateLeft.updateHpBar()
-        this.gateRight.updateHpBar()
+        if (this.gateLeft?.isAlive()) {
+            this.gateLeft.updateHpBar()
+        } else {
+            this.gateLeft?.destroy()
+            this.gateLeft = null
+        }
+
+        if (this.gateRight?.isAlive()) {
+            this.gateRight.updateHpBar()
+        } else {
+            this.gateRight?.destroy()
+            this.gateRight = null
+        }
 
         for (let i = 0; i < this.units.length; i++) {
             const unit = this.units[i]
-            const hitablesLeft = (this.units as Hitable[]).concat(this.gateRight)
-            const hitablesRight = (this.units as Hitable[]).concat(this.gateLeft)
-            if (unit.team == Team.Left) unit.update(hitablesLeft)
-            else unit.update(hitablesRight)
+            const hitables = this.units as Hitable[]
+            const hitablesLeft = this.gateRight ? hitables.concat(this.gateRight) : hitables
+            const hitablesRight = this.gateLeft ? hitables.concat(this.gateLeft) : hitables
+            unit.update(unit.team == Team.Left ? hitablesLeft : hitablesRight)
 
             if (!unit.isAlive()) {
                 const ragdoll = new Ragdoll(this, unit)

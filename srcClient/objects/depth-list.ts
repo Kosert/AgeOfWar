@@ -2,11 +2,11 @@
 
 // Background = 0 
 // Ground = 1
-// Castle front = 10 (todo)
+// Gate back = 10
 // Ragdoll = 13
 // Unit = 14
 // Projectile = 15
 // HP Bar border = 18
 // HP Bar = 19
-// Castle back = 20  (todo)
+// Gate front = 20
 // Ui = 90
