@@ -11,6 +11,8 @@ export class PlaygroundBattleScene extends BaseBattleScene {
     static readonly sceneKey: string = "PlaygroundBattleScene"
     readonly sceneKey: string = PlaygroundBattleScene.sceneKey
 
+    private buttons: Phaser.GameObjects.Components.Visible[] = []
+
     constructor() {
         super({ key: PlaygroundBattleScene.sceneKey })
     }
@@ -20,11 +22,11 @@ export class PlaygroundBattleScene extends BaseBattleScene {
         const self = this
 
         const button = this.add.rectangle(100, 100, 100, 100, 0x0000ff).setInteractive().setScrollFactor(0)
-        this.add.sprite(100, 90, "warrior_idle", 0).setScrollFactor(0)
+        this.buttons.push(this.add.sprite(100, 90, "warrior_idle", 0).setScrollFactor(0))
         const buttonK = this.add.rectangle(250, 100, 100, 100, 0x0000ff).setInteractive().setScrollFactor(0)
-        this.add.sprite(250, 90, "knight_idle", 0).setScrollFactor(0)
+        this.buttons.push(this.add.sprite(250, 90, "knight_idle", 0).setScrollFactor(0))
         const buttonA = this.add.rectangle(400, 100, 100, 100, 0x0000ff).setInteractive().setScrollFactor(0)
-        this.add.sprite(400, 120, "archer_idle", 0).setScrollFactor(0)
+        this.buttons.push(this.add.sprite(400, 120, "archer_idle", 0).setScrollFactor(0))
 
         button.on("pointerdown", function () {
             const warrior = new Warrior(self, self.getSpawnPosition(Team.Left), self.cameras.main.height - 120, Team.Left)
@@ -43,11 +45,12 @@ export class PlaygroundBattleScene extends BaseBattleScene {
         })
 
         const button2 = this.add.rectangle(self.cameras.main.width - 500, 100, 100, 100, 0xff0000).setInteractive().setScrollFactor(0)
-        this.add.sprite(self.cameras.main.width - 500, 90, "warrior_idle", 0).setScrollFactor(0)
+        this.buttons.push(this.add.sprite(self.cameras.main.width - 500, 90, "warrior_idle", 0).setScrollFactor(0))
         const buttonK2 = this.add.rectangle(self.cameras.main.width - 350, 100, 100, 100, 0xff0000).setInteractive().setScrollFactor(0)
-        this.add.sprite(self.cameras.main.width - 350, 90, "knight_idle", 0).setScrollFactor(0)
+        this.buttons.push(this.add.sprite(self.cameras.main.width - 350, 90, "knight_idle", 0).setScrollFactor(0))
         const buttonA2 = this.add.rectangle(self.cameras.main.width - 200, 100, 100, 100, 0xff0000).setInteractive().setScrollFactor(0)
-        this.add.sprite(self.cameras.main.width - 200, 120, "archer_idle", 0).setScrollFactor(0)
+        this.buttons.push(this.add.sprite(self.cameras.main.width - 200, 120, "archer_idle", 0).setScrollFactor(0))
+        this.buttons.push(button, buttonK, buttonA, button2, buttonK2, buttonA2)
 
         button2.on("pointerdown", function () {
             const warrior = new Warrior(self, self.getSpawnPosition(Team.Right), self.cameras.main.height - 120, Team.Right)
@@ -86,5 +89,9 @@ export class PlaygroundBattleScene extends BaseBattleScene {
 
     update(time: number, delta: number) {
         super.update(time, delta)
+
+        if (!this.gateLeft || !this.gateRight) {
+            this.buttons.forEach(it => it.setVisible(false))
+        }
     }
 }

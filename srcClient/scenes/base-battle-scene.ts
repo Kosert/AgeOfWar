@@ -1,5 +1,5 @@
 import { Scene } from "phaser"
-import FpsText from "../fpsText"
+import FpsText from "../objects/text/fpsText"
 import { Ragdoll } from "../objects/ragdoll"
 import { Unit } from "../objects/units/unit"
 import "util"
@@ -11,6 +11,7 @@ import { Team } from "../data/team"
 import { Hitable } from "../objects/hitable"
 import { GameSettings } from "./game-settings"
 import { PauseMenuScene } from "./pause-scene"
+import VictoryText from "../objects/text/victory-text"
 
 export abstract class BaseBattleScene extends Scene {
 
@@ -45,6 +46,7 @@ export abstract class BaseBattleScene extends Scene {
 
     private fpsText: FpsText
     protected gameSettings: GameSettings
+    protected victoryText: VictoryText
 
     protected readonly units: Unit[] = []
     protected readonly projectiles: Projectile[] = []
@@ -60,6 +62,7 @@ export abstract class BaseBattleScene extends Scene {
         this.gameSettings = data ?? GameSettings.default
         this.matter.world.setBounds(0, 0, this.gameSettings.mapSize, this.cameras.main.height - 60)
         this.fpsText = new FpsText(this)
+        this.victoryText = new VictoryText(this)
 
         this.keyLeft = this.input.keyboard.addKey("A")
         this.keyRight = this.input.keyboard.addKey("D")
@@ -97,18 +100,24 @@ export abstract class BaseBattleScene extends Scene {
     update(time: number, delta: number) {
         this.fpsText.update()
 
-        if (this.gateLeft?.isAlive()) {
-            this.gateLeft.updateHpBar()
-        } else {
-            this.gateLeft?.destroy()
-            this.gateLeft = null
+        if (this.gateLeft) {
+            if (this.gateLeft.isAlive()) {
+                this.gateLeft.updateHpBar()
+            } else {
+                this.victoryText.showVictory(Team.Right)
+                this.gateLeft.destroy()
+                this.gateLeft = null
+            }
         }
 
-        if (this.gateRight?.isAlive()) {
-            this.gateRight.updateHpBar()
-        } else {
-            this.gateRight?.destroy()
-            this.gateRight = null
+        if (this.gateRight) {
+            if (this.gateRight.isAlive()) {
+                this.gateRight.updateHpBar()
+            } else {
+                this.victoryText.showVictory(Team.Left)
+                this.gateRight.destroy()
+                this.gateRight = null
+            }
         }
 
         for (let i = 0; i < this.units.length; i++) {
@@ -141,9 +150,7 @@ export abstract class BaseBattleScene extends Scene {
         let scrollValue = 0
         if (this.keyLeft.isDown) scrollValue -= 10
         if (this.keyRight.isDown) scrollValue += 10
-        this.cameras.main.scrollX = (this.cameras.main.scrollX + scrollValue).coerceIn(
-            0,
-            this.gameSettings.mapSize - this.cameras.main.width
-        )
+        this.cameras.main.scrollX = (this.cameras.main.scrollX + scrollValue)
+            .coerceIn(0,this.gameSettings.mapSize - this.cameras.main.width)
     }
 }
