@@ -1,16 +1,60 @@
 import { Scene } from "phaser";
+import { AnimationLoader } from "../animation-loader";
+import { UnitType } from "../data/unit-type";
 import { GameSettings } from "./game-settings";
 import { PlaygroundBattleScene } from "./playground-scene";
+import { SkirmishBattleScene } from "./skirmish-battle-scene";
 
 export class MainMenuScene extends Scene {
 
+    static readonly sceneKey: string = "MainMenuScene"
+
+    private animationLoader: AnimationLoader
+
     constructor(config: string | Phaser.Types.Scenes.SettingsConfig) {
-        super({ key: "MainMenuScene" })
+        super({ key: MainMenuScene.sceneKey })
+        this.animationLoader = new AnimationLoader(this)
+    }
+
+    preload() {
+        UnitType.values.forEach((it) => this.animationLoader.preload(it))
+        this.load.image("arrow", "assets/archer/Arrow.png")
+        this.load.image("gate_back", "assets/gate/gate_back.png")
+        this.load.image("gate_front", "assets/gate/gate_front.png")
+        this.load.image("rubble_back", "assets/gate/rubble_back.png")
+        this.load.image("rubble_front", "assets/gate/rubble_front.png")
+        this.load.image("gold_coin", "assets/icons/gold_coin.png")
+        this.load.image("heart", "assets/icons/heart.png")
+        this.load.image("attack", "assets/icons/attack.png")
+        this.load.image("attack_range", "assets/icons/attack_range.png")
+        this.load.image("speed", "assets/icons/speed.png")
     }
 
     create() {
-        const gameSettings: GameSettings = { mapSize: 1920 }
-        this.scene.start("PlaygroundBattleScene", gameSettings)
+        UnitType.values.forEach((it) => this.animationLoader.createAnimations(it))
+
+        // this.launchSkirmish()
+        this.launchPlayground()
+
+        this.events.on(Phaser.Scenes.Events.WAKE, (data: GameSettings) => {
+            this.launchPlayground()
+        }, this)
     }
 
+    launchPlayground() {
+        const gameSettings: GameSettings = { mapSize: 1920, gateOffset: 100 }
+        if (!this.scene.get(PlaygroundBattleScene.sceneKey)) {
+            this.scene.add(PlaygroundBattleScene.sceneKey, PlaygroundBattleScene, false)
+            this.scene.sleep(MainMenuScene.sceneKey)
+            this.scene.run(PlaygroundBattleScene.sceneKey, gameSettings)
+        } else {
+            this.scene.sleep(MainMenuScene.sceneKey)
+            this.scene.wake(PlaygroundBattleScene.sceneKey, gameSettings)
+        }
+    }
+
+    launchSkirmish() {
+        const gameSettings: GameSettings = { mapSize: 1920, gateOffset: 200 }
+        this.scene.add(SkirmishBattleScene.sceneKey, SkirmishBattleScene, true, gameSettings)
+    }
 }

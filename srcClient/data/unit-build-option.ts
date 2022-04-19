@@ -1,0 +1,61 @@
+import { TooltipContent } from "../ui/tooltip"
+import { BuildOption } from "./build-option"
+import { UnitType } from "./unit-type"
+
+
+type UnitBuildOptionCreator = {
+    unitType: UnitType
+    description: string
+    goldCost: number
+    researchTime: number
+    requires?: BuildOption[]
+}
+
+export class UnitBuildOption extends BuildOption {
+
+    static readonly CreateSwordsman: BuildOption = new UnitBuildOption({
+        unitType: UnitType.Warrior,
+        description: null,
+        goldCost: 30,
+        researchTime: 10_000,
+    })
+
+    static readonly CreateKnight: BuildOption = new UnitBuildOption({
+        unitType: UnitType.Knight,
+        description: null,
+        goldCost: 60,
+        researchTime: 10_000,
+        requires: [BuildOption.UnlockKnight]
+    })
+
+    //todo rest of units
+
+    readonly unitType: UnitType
+
+    private constructor(creator: UnitBuildOptionCreator) {
+        super({
+            name: `create_${creator.unitType.name}`,
+            visibleName: `Create ${creator.unitType.visibleName}`,
+            goldCost: creator.goldCost,
+            researchTime: creator.researchTime,
+            tooltip: { description: creator.description },
+            isOneTime: true,
+            requires: creator.requires
+        })
+        this.unitType = creator.unitType
+    }
+
+    generateTooltip() : TooltipContent {
+        const content: TooltipContent = {
+            title: this.visibleName,
+            cost: `${this.goldCost} (creation time: ${this.researchTime / 1000} seconds)`,
+            description: this.tooltip.description,
+            hp: this.unitType.hp.toString(),
+            attack: `${this.unitType.dmgMin} - ${this.unitType.dmgMax}`,
+        }
+        if (this.unitType.range) {
+            content.rangeAttack = `${this.unitType.range.dmgMin} - ${this.unitType.range.dmgMax}`
+        }
+        return content
+    }
+}

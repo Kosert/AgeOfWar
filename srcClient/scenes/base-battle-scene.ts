@@ -1,23 +1,19 @@
 import { Scene } from "phaser"
-import FpsText from "../objects/text/fpsText"
 import { Ragdoll } from "../objects/ragdoll"
 import { Unit } from "../objects/units/unit"
 import "util"
-import { AnimationLoader } from "../animation-loader"
-import { UnitType } from "../data/unit-type"
 import { Projectile } from "../objects/projectile"
 import { Gate } from "../objects/gate"
 import { Team } from "../data/team"
 import { Hitable } from "../objects/hitable"
 import { GameSettings } from "./game-settings"
-import { PauseMenuScene } from "./pause-scene"
-import VictoryText from "../objects/text/victory-text"
+import VictoryText from "../ui/victory-text"
+import { Controller } from "../controller"
+import FpsText from "../ui/fpsText"
+import { MainMenuScene } from "./main-scene"
 
 export abstract class BaseBattleScene extends Scene {
-
     abstract readonly sceneKey: string
-
-    private animationLoader: AnimationLoader
 
     constructor(config: string | Phaser.Types.Scenes.SettingsConfig) {
         super(
@@ -31,53 +27,36 @@ export abstract class BaseBattleScene extends Scene {
                 },
             })
         )
-
-        this.animationLoader = new AnimationLoader(this)
     }
 
-    preload() {
-        UnitType.values.forEach((it) => this.animationLoader.preload(it))
-        this.load.image("arrow", "assets/archer/Arrow.png")
-        this.load.image("gate_back", "assets/gate/gate_back.png")
-        this.load.image("gate_front", "assets/gate/gate_front.png")
-        this.load.image("rubble_back", "assets/gate/rubble_back.png")
-        this.load.image("rubble_front", "assets/gate/rubble_front.png")
-    }
+    gameSettings: GameSettings
+    protected controller: Controller
 
     private fpsText: FpsText
-    protected gameSettings: GameSettings
     protected victoryText: VictoryText
 
     protected readonly units: Unit[] = []
     protected readonly projectiles: Projectile[] = []
 
-    protected gateLeft?: Gate
-    protected gateRight?: Gate
-
-    protected keyLeft: Phaser.Input.Keyboard.Key
-    protected keyRight: Phaser.Input.Keyboard.Key
-    protected keyPause: Phaser.Input.Keyboard.Key
+    protected gateLeft: Gate
+    protected gateRight: Gate
 
     create(data: GameSettings) {
         this.gameSettings = data ?? GameSettings.default
-        this.matter.world.setBounds(0, 0, this.gameSettings.mapSize, this.cameras.main.height - 60)
         this.fpsText = new FpsText(this)
         this.victoryText = new VictoryText(this)
+        this.initWorld()
 
-        this.keyLeft = this.input.keyboard.addKey("A")
-        this.keyRight = this.input.keyboard.addKey("D")
-        this.keyPause = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
         const self = this
-        this.keyPause.on("up", function(event: KeyboardEvent) {
-            self.scene.pause(self.sceneKey)
-            self.scene.run(PauseMenuScene.sceneKey)
+        this.events.on(Phaser.Scenes.Events.WAKE, (sys: Phaser.Scenes.Systems, data: GameSettings) => {
+            self.gameSettings = data ?? GameSettings.default
+            self.initWorld()
         })
+    }
 
-        this.gateLeft = new Gate(this, 100, Team.Left)
-        this.gateRight = new Gate(this, this.gameSettings.mapSize - 100, Team.Right)
-
-        UnitType.values.forEach((it) => this.animationLoader.createAnimations(it))
-
+    initWorld() {
+        this.controller = new Controller(this)
+        this.matter.world.setBounds(0, 0, this.gameSettings.mapSize, this.cameras.main.height - 60)
         this.add
             .rectangle(0, 0, this.gameSettings.mapSize, this.cameras.main.height, 0x87ceeb)
             .setOrigin(0, 0)
@@ -90,6 +69,9 @@ export abstract class BaseBattleScene extends Scene {
             .rectangle(0, this.cameras.main.height - 70, this.gameSettings.mapSize, 20, 0x117c13)
             .setOrigin(0, 0)
             .setDepth(1)
+
+        this.gateLeft = new Gate(this, this.gameSettings.gateOffset, Team.Left)
+        this.gateRight = new Gate(this, this.gameSettings.mapSize - this.gameSettings.gateOffset, Team.Right)
     }
 
     onNewProjectile(projectile: Projectile) {
@@ -100,31 +82,35 @@ export abstract class BaseBattleScene extends Scene {
     update(time: number, delta: number) {
         this.fpsText.update()
 
-        if (this.gateLeft) {
-            if (this.gateLeft.isAlive()) {
-                this.gateLeft.updateHpBar()
-            } else {
-                this.victoryText.showVictory(Team.Right)
-                this.gateLeft.destroy()
-                this.gateLeft = null
-            }
+        if (this.gateLeft.isAlive()) {
+            this.gateLeft.updateHpBar()
+        } else if (!this.gateLeft.isRubble()) {
+            this.victoryText.showVictory(Team.Right)
+            this.gateLeft.kill()
+            setTimeout(() => {
+                this.cleanup()
+                this.scene.sleep(this.sceneKey)
+                this.scene.wake(MainMenuScene.sceneKey)
+            }, 2000);
         }
 
-        if (this.gateRight) {
-            if (this.gateRight.isAlive()) {
-                this.gateRight.updateHpBar()
-            } else {
-                this.victoryText.showVictory(Team.Left)
-                this.gateRight.destroy()
-                this.gateRight = null
-            }
+        if (this.gateRight.isAlive()) {
+            this.gateRight.updateHpBar()
+        } else if (!this.gateRight.isRubble()) {
+            this.victoryText.showVictory(Team.Left)
+            this.gateRight.kill()
+            setTimeout(() => {
+                this.cleanup()
+                this.scene.sleep(this.sceneKey)
+                this.scene.wake(MainMenuScene.sceneKey)
+            }, 2000);
         }
 
         for (let i = 0; i < this.units.length; i++) {
             const unit = this.units[i]
             const hitables = this.units as Hitable[]
-            const hitablesLeft = this.gateRight ? hitables.concat(this.gateRight) : hitables
-            const hitablesRight = this.gateLeft ? hitables.concat(this.gateLeft) : hitables
+            const hitablesLeft = this.gateRight.isAlive() ? hitables.concat(this.gateRight) : hitables
+            const hitablesRight = this.gateLeft.isAlive() ? hitables.concat(this.gateLeft) : hitables
             unit.update(unit.team == Team.Left ? hitablesLeft : hitablesRight)
 
             if (!unit.isAlive()) {
@@ -147,10 +133,17 @@ export abstract class BaseBattleScene extends Scene {
             }
         }
 
-        let scrollValue = 0
-        if (this.keyLeft.isDown) scrollValue -= 10
-        if (this.keyRight.isDown) scrollValue += 10
-        this.cameras.main.scrollX = (this.cameras.main.scrollX + scrollValue)
-            .coerceIn(0,this.gameSettings.mapSize - this.cameras.main.width)
+        this.controller.update()
+    }
+
+    cleanup() {
+        this.victoryText.showVictory(null)
+        this.controller.destroy()
+        this.units.forEach(it => it.destroy())
+        this.units.length = 0
+        this.projectiles.forEach(it => it.destroy())
+        this.projectiles.length = 0
+        this.gateLeft.destroy()
+        this.gateRight.destroy()
     }
 }

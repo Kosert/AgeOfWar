@@ -1,9 +1,9 @@
 import { Scene } from "phaser"
 import { Team } from "../data/team"
+import { Tooltip } from "../ui/tooltip"
 import { Hitable } from "./hitable"
 
 export class Gate extends Phaser.Physics.Matter.Image implements Hitable {
-
     private readonly maxHP = 300
 
     private hp: number = this.maxHP
@@ -15,8 +15,9 @@ export class Gate extends Phaser.Physics.Matter.Image implements Hitable {
 
     constructor(scene: Scene, x: number, readonly team: Team) {
         super(scene.matter.world, x, scene.cameras.main.height - 51 - 80, "")
-        this.setRectangle(80, 80, { isStatic: true})
+        this.setRectangle(80, 80, { isStatic: true })
 
+        const self = this
         this.frontImage = scene.add
             .image(x, this.y + 80, "gate_front")
             .setOrigin(0.5, 1)
@@ -28,15 +29,28 @@ export class Gate extends Phaser.Physics.Matter.Image implements Hitable {
             .setOrigin(0.5, 1)
             .setFlipX(team == Team.Right)
             .setDepth(10)
+            .setInteractive()
+            .on("pointerover", function (pointer) {
+                Tooltip.show(self.scene, {
+                    title: team == Team.Left ? "Blue gate" : "Red Gate",
+                    description: `Current HP: ${self.hp}/${self.maxHP}\nPlayer will lose when his gate gets destroyed.`,
+                })
+            })
+            .on("pointerout", function () {
+                Tooltip.show(self.scene, null)
+            })
     }
- 
+
     isAlive(): boolean {
         return this.hp > 0
     }
 
+    isRubble(): boolean {
+        return this.frontImage.texture.key == "rubble_front"
+    }
+
     dealDamage(dmgMin: number, dmgMax?: number): void {
-        if (!dmgMax)
-            dmgMax = dmgMin
+        if (!dmgMax) dmgMax = dmgMin
         const dmg = Phaser.Math.RND.between(dmgMin, dmgMax)
         this.hp = (this.hp - dmg).coerceAtLeast(0)
     }
@@ -60,10 +74,17 @@ export class Gate extends Phaser.Physics.Matter.Image implements Hitable {
         this.heathBar.clear().fillStyle(color).fillRect(barX, barY, 16, -pixels)
     }
 
-    destroy() {
+    kill() {
         this.updateHpBar()
         this.frontImage.setTexture("rubble_front")
         this.backImage.setTexture("rubble_back")
+    }
+
+    destroy() {
+        this.backImage.destroy()
+        this.frontImage.destroy()
+        this.heathBar.destroy()
+        this.heathBarBorder.destroy()
         super.destroy()
     }
 }

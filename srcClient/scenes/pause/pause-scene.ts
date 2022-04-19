@@ -1,5 +1,6 @@
 import { Scene } from "phaser"
-import { PlaygroundBattleScene } from "./playground-scene"
+import { PlaygroundBattleScene } from "../playground-scene"
+import { PauseData } from "./pause-data"
 
 export class PauseMenuScene extends Scene {
     static readonly sceneKey = "PauseMenuScene"
@@ -8,8 +9,10 @@ export class PauseMenuScene extends Scene {
         super({ key: PauseMenuScene.sceneKey })
     }
 
-    create() {
-        this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000, 0.4).setOrigin(0, 0)
+    create(data: PauseData) {
+        this.scene.moveAbove(data.pausedSceneKey)
+        this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000, 0.4)
+            .setOrigin(0, 0)
 
         const title = this.add.text(0, 100, "Game paused", { color: "white", fontSize: "36px" })
         title.x = this.cameras.main.width / 2 - title.width / 2
@@ -21,7 +24,7 @@ export class PauseMenuScene extends Scene {
         const keyPause = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
         keyPause.on("up", function(event: KeyboardEvent) {
             self.scene.stop(PauseMenuScene.sceneKey)
-            self.scene.resume(PlaygroundBattleScene.sceneKey) //todo pass sceneKey
+            self.scene.resume(data.pausedSceneKey)
         })
 
     }

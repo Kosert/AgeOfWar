@@ -1,7 +1,8 @@
+import { TooltipContent } from "../ui/tooltip"
 
 export class UnitType {
 
-    static readonly Warrior: UnitType = {
+    static readonly Warrior: UnitType = new UnitType({
         name: "warrior",
         visibleName: "Warrior",
         unitWidth: 80,
@@ -10,9 +11,9 @@ export class UnitType {
         dmgMax: 6,
         attackSpeed: 2,
         speed: 3,
-    }
+    })
 
-    static readonly Knight: UnitType = {
+    static readonly Knight: UnitType = new UnitType({
         name: "knight",
         visibleName: "Knight",
         unitWidth: 80,
@@ -21,15 +22,15 @@ export class UnitType {
         dmgMax: 10,
         attackSpeed: 1.1,
         speed: 1.5,
-    }
+    })
 
-    static readonly Archer: UnitType = {
+    static readonly Archer: UnitType = new UnitType({
         name: "archer",
         visibleName: "Archer",
         unitWidth: 80,
         hp: 20,
-        dmgMin: 3,
-        dmgMax: 4,
+        dmgMin: 2,
+        dmgMax: 3,
         attackSpeed: 1.4,
         speed: 3,
         range: {
@@ -38,7 +39,7 @@ export class UnitType {
             attackSpeed: 1,
             range: 200,
         }
-    }
+    })
 
     static readonly values: UnitType[] = [
         UnitType.Warrior,
@@ -50,18 +51,19 @@ export class UnitType {
         return this.values.find((it) => it.name == name)
     }
 
-    private constructor(
-        readonly name: string,
-        readonly visibleName: string,
-        readonly unitWidth: number,
-        readonly hp: number,
-        readonly dmgMin: number,
-        readonly dmgMax: number,
-        readonly attackSpeed: number,
-        readonly speed: number,
-        readonly range?: RangeAttack,
-    ) {}
+    private constructor(unitType: UnitType) {
+        Object.assign(this, unitType)
+    }
 
+    readonly name: string
+    readonly visibleName: string
+    readonly unitWidth: number
+    readonly hp: number
+    readonly dmgMin: number
+    readonly dmgMax: number
+    readonly attackSpeed: number
+    readonly speed: number
+    readonly range?: RangeAttack
 }
 export interface RangeAttack {
     readonly dmgMin: number

@@ -7,7 +7,7 @@ export default class FpsText extends Phaser.GameObjects.Text {
         scene.add.existing(this)
         this.setOrigin(0)
         this.setScrollFactor(0)
-        this.setDepth(90)
+        this.setDepth(91)
     }
 
     public update() {
