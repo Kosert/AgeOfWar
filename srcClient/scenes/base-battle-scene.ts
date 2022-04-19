@@ -91,7 +91,7 @@ export abstract class BaseBattleScene extends Scene {
                 this.cleanup()
                 this.scene.sleep(this.sceneKey)
                 this.scene.wake(MainMenuScene.sceneKey)
-            }, 2000);
+            }, 4000);
         }
 
         if (this.gateRight.isAlive()) {
@@ -103,7 +103,7 @@ export abstract class BaseBattleScene extends Scene {
                 this.cleanup()
                 this.scene.sleep(this.sceneKey)
                 this.scene.wake(MainMenuScene.sceneKey)
-            }, 2000);
+            }, 4000);
         }
 
         for (let i = 0; i < this.units.length; i++) {
