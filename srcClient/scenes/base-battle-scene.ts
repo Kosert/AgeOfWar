@@ -37,6 +37,7 @@ export abstract class BaseBattleScene extends Scene {
 
     protected readonly units: Unit[] = []
     protected readonly projectiles: Projectile[] = []
+    protected readonly ragdolls: Ragdoll[] = []
 
     protected gateLeft: Gate
     protected gateRight: Gate
@@ -85,25 +86,15 @@ export abstract class BaseBattleScene extends Scene {
         if (this.gateLeft.isAlive()) {
             this.gateLeft.updateHpBar()
         } else if (!this.gateLeft.isRubble()) {
-            this.victoryText.showVictory(Team.Right)
             this.gateLeft.kill()
-            setTimeout(() => {
-                this.cleanup()
-                this.scene.sleep(this.sceneKey)
-                this.scene.wake(MainMenuScene.sceneKey)
-            }, 4000);
+            this.onVictory(Team.Right)
         }
 
         if (this.gateRight.isAlive()) {
             this.gateRight.updateHpBar()
         } else if (!this.gateRight.isRubble()) {
-            this.victoryText.showVictory(Team.Left)
             this.gateRight.kill()
-            setTimeout(() => {
-                this.cleanup()
-                this.scene.sleep(this.sceneKey)
-                this.scene.wake(MainMenuScene.sceneKey)
-            }, 4000);
+            this.onVictory(Team.Left)
         }
 
         for (let i = 0; i < this.units.length; i++) {
@@ -115,6 +106,7 @@ export abstract class BaseBattleScene extends Scene {
 
             if (!unit.isAlive()) {
                 const ragdoll = new Ragdoll(this, unit)
+                this.ragdolls.push(ragdoll)
                 this.add.existing(ragdoll)
                 unit.destroy()
                 this.units.splice(i, 1)
@@ -136,13 +128,29 @@ export abstract class BaseBattleScene extends Scene {
         this.controller.update()
     }
 
-    cleanup() {
+    protected isGameOver(): boolean {
+        return !this.gateLeft.isAlive() || !this.gateRight.isAlive()
+    }
+
+    protected onVictory(team: Team) {
+        this.victoryText.showVictory(team)
+        setTimeout(() => {
+            this.cleanup()
+            this.scene.sleep(this.sceneKey)
+            this.scene.wake(MainMenuScene.sceneKey)
+        }, 4000);
+    }
+
+    protected cleanup() {
+        //todo ragdoll
         this.victoryText.showVictory(null)
         this.controller.destroy()
         this.units.forEach(it => it.destroy())
         this.units.length = 0
         this.projectiles.forEach(it => it.destroy())
         this.projectiles.length = 0
+        this.ragdolls.forEach(it => it.destroy())
+        this.ragdolls.length = 0
         this.gateLeft.destroy()
         this.gateRight.destroy()
     }

@@ -28,16 +28,18 @@ export class MainMenuScene extends Scene {
         this.load.image("attack", "assets/icons/attack.png")
         this.load.image("attack_range", "assets/icons/attack_range.png")
         this.load.image("speed", "assets/icons/speed.png")
+        this.load.image("placeholder", "assets/icons/placeholder.png")
+        this.load.image("locked", "assets/icons/locked.png")
     }
 
     create() {
         UnitType.values.forEach((it) => this.animationLoader.createAnimations(it))
 
-        // this.launchSkirmish()
-        this.launchPlayground()
+        this.launchSkirmish()
+        // this.launchPlayground()
 
         this.events.on(Phaser.Scenes.Events.WAKE, (data: GameSettings) => {
-            this.launchPlayground()
+            this.launchSkirmish()
         }, this)
     }
 
@@ -55,6 +57,13 @@ export class MainMenuScene extends Scene {
 
     launchSkirmish() {
         const gameSettings: GameSettings = { mapSize: 1920, gateOffset: 200 }
-        this.scene.add(SkirmishBattleScene.sceneKey, SkirmishBattleScene, true, gameSettings)
+        if (!this.scene.get(SkirmishBattleScene.sceneKey)) {
+            this.scene.add(SkirmishBattleScene.sceneKey, SkirmishBattleScene, false)
+            this.scene.sleep(MainMenuScene.sceneKey)
+            this.scene.run(SkirmishBattleScene.sceneKey, gameSettings)
+        } else {
+            this.scene.sleep(MainMenuScene.sceneKey)
+            this.scene.wake(SkirmishBattleScene.sceneKey, gameSettings)
+        }
     }
 }

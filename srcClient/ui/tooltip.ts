@@ -47,8 +47,10 @@ export class Tooltip {
         })
     }
 
+    hideUi: boolean = false
+
     private show(content?: TooltipContent) {
-        if (!content) {
+        if (!content || this.hideUi) {
             this.allElements.forEach(it => it.setVisible(false))
             return
         }
@@ -69,36 +71,21 @@ export class Tooltip {
 
         this.hpText.y = this.mainText.y + this.mainText.displayHeight
         this.hpIcon.y = this.mainText.y + this.mainText.displayHeight + 5
-        if (content.hp) {
-            this.hpText.setScale(1)
-            this.hpIcon.setScale(1)
-            this.hpText.text = content.hp
-        } else {
-            this.hpText.setScale(0)
-            this.hpIcon.setScale(0)
-        }
+        this.hpText.text = content.hp
+        this.hpText.setScale(content.hp ? 1 : 0)
+        this.hpIcon.setScale(content.hp ? 1 : 0)
         
         this.rangeAttackText.y = this.hpText.y + this.hpText.displayHeight
         this.rangeAttackIcon.y = this.hpText.y + this.hpText.displayHeight + 5
-        if (content.rangeAttack) {
-            this.rangeAttackText.setScale(1)
-            this.rangeAttackIcon.setScale(1)
-            this.rangeAttackText.text = content.rangeAttack
-        } else {
-            this.rangeAttackText.setScale(0)
-            this.rangeAttackIcon.setScale(0)
-        }
-        
+        this.rangeAttackText.text = content.rangeAttack
+        this.rangeAttackText.setScale(content.rangeAttack ? 1 : 0)
+        this.rangeAttackIcon.setScale(content.rangeAttack ? 1 : 0)
+
         this.attackText.y = this.rangeAttackText.y + this.rangeAttackText.displayHeight
         this.attackIcon.y = this.rangeAttackText.y + this.rangeAttackText.displayHeight + 5
-        if (content.attack) {
-            this.attackText.setScale(1)
-            this.attackIcon.setScale(1)
-            this.attackText.text = content.attack
-        } else {
-            this.attackText.setScale(0)
-            this.attackIcon.setScale(0)
-        }
+        this.attackText.text = content.attack
+        this.attackText.setScale(content.attack ? 1 : 0)
+        this.attackIcon.setScale(content.attack ? 1 : 0)
 
         this.speedText.y = this.attackText.y + this.attackText.displayHeight
         this.speedIcon.y = this.attackText.y + this.attackText.displayHeight + 5
@@ -117,7 +104,6 @@ export class Tooltip {
     private static EVENT = "tooltip_event"
 
     static show(scene: Scene, content?: TooltipContent) {
-        console.log("Tooltip: ", content)
         scene.events.emit(Tooltip.EVENT, content)
     }
 }

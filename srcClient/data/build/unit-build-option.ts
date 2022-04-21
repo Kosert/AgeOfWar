@@ -1,6 +1,6 @@
-import { TooltipContent } from "../ui/tooltip"
+import { TooltipContent } from "../../ui/tooltip"
 import { BuildOption } from "./build-option"
-import { UnitType } from "./unit-type"
+import { UnitType } from "../unit-type"
 
 
 type UnitBuildOptionCreator = {
@@ -13,11 +13,12 @@ type UnitBuildOptionCreator = {
 
 export class UnitBuildOption extends BuildOption {
 
-    static readonly CreateSwordsman: BuildOption = new UnitBuildOption({
+    static readonly CreateWarrior: BuildOption = new UnitBuildOption({
         unitType: UnitType.Warrior,
         description: null,
         goldCost: 30,
         researchTime: 10_000,
+        requires: [BuildOption.UnlockWarrior]
     })
 
     static readonly CreateKnight: BuildOption = new UnitBuildOption({
@@ -26,6 +27,14 @@ export class UnitBuildOption extends BuildOption {
         goldCost: 60,
         researchTime: 10_000,
         requires: [BuildOption.UnlockKnight]
+    })
+
+    static readonly CreateArcher: BuildOption = new UnitBuildOption({
+        unitType: UnitType.Archer,
+        description: null,
+        goldCost: 40,
+        researchTime: 10_000,
+        requires: [BuildOption.UnlockArcher]
     })
 
     //todo rest of units
@@ -39,19 +48,23 @@ export class UnitBuildOption extends BuildOption {
             goldCost: creator.goldCost,
             researchTime: creator.researchTime,
             tooltip: { description: creator.description },
-            isOneTime: true,
             requires: creator.requires
         })
         this.unitType = creator.unitType
     }
 
+    getParent(): BuildOption {
+        return null
+    }
+
     generateTooltip() : TooltipContent {
         const content: TooltipContent = {
             title: this.visibleName,
-            cost: `${this.goldCost} (creation time: ${this.researchTime / 1000} seconds)`,
+            cost: `${this.goldCost}`, // (creation time: ${this.researchTime / 1000} seconds)`,
             description: this.tooltip.description,
             hp: this.unitType.hp.toString(),
             attack: `${this.unitType.dmgMin} - ${this.unitType.dmgMax}`,
+            speed: this.unitType.speed.toString()
         }
         if (this.unitType.range) {
             content.rangeAttack = `${this.unitType.range.dmgMin} - ${this.unitType.range.dmgMax}`
