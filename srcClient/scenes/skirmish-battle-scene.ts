@@ -47,7 +47,7 @@ export class SkirmishBattleScene extends BaseBattleScene {
             (type: UnitType) => { this.spawnUnit(Team.Right, type) }
         )
         // this.leftAi = new MediumWarriorAi(this.leftManager)
-        this.rightAi = new MediumWarriorAi(this.rightManager)
+        this.rightAi = new EasyWarriorAi(this.rightManager)
 
         this.ui = new Ui(this, this.leftManager)
     }
