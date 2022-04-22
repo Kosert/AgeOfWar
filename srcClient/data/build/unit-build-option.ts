@@ -45,6 +45,7 @@ export class UnitBuildOption extends BuildOption {
         super({
             name: `create_${creator.unitType.name}`,
             visibleName: `Create ${creator.unitType.visibleName}`,
+            icon: `create_${creator.unitType.name}`,
             goldCost: creator.goldCost,
             researchTime: creator.researchTime,
             tooltip: { description: creator.description },
@@ -71,4 +72,8 @@ export class UnitBuildOption extends BuildOption {
         }
         return content
     }
+
+    static values: BuildOption[] = [
+        UnitBuildOption.CreateWarrior, UnitBuildOption.CreateKnight, UnitBuildOption.CreateArcher
+    ]
 }

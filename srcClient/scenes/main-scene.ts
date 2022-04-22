@@ -1,5 +1,7 @@
 import { Scene } from "phaser";
 import { AnimationLoader } from "../animation-loader";
+import { BuildOption } from "../data/build/build-option";
+import { UnitBuildOption } from "../data/build/unit-build-option";
 import { UnitType } from "../data/unit-type";
 import { GameSettings } from "./game-settings";
 import { PlaygroundBattleScene } from "./playground-scene";
@@ -18,6 +20,12 @@ export class MainMenuScene extends Scene {
 
     preload() {
         UnitType.values.forEach((it) => this.animationLoader.preload(it))
+        BuildOption.values.forEach(it => {
+            this.load.image(it.icon, `assets/icons/${it.icon}.png`)
+        })
+        UnitBuildOption.values.forEach(it => {
+            this.load.image(it.icon, `assets/icons/${it.icon}.png`)
+        })
         this.load.image("arrow", "assets/archer/Arrow.png")
         this.load.image("gate_back", "assets/gate/gate_back.png")
         this.load.image("gate_front", "assets/gate/gate_front.png")
@@ -28,7 +36,6 @@ export class MainMenuScene extends Scene {
         this.load.image("attack", "assets/icons/attack.png")
         this.load.image("attack_range", "assets/icons/attack_range.png")
         this.load.image("speed", "assets/icons/speed.png")
-        this.load.image("placeholder", "assets/icons/placeholder.png")
         this.load.image("locked", "assets/icons/locked.png")
     }
 

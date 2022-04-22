@@ -19,7 +19,7 @@ export class OptionButton {
     ) {
         const self = this
         this.button = scene.add
-            .image(this.x, this.y, "placeholder")
+            .image(this.x, this.y, option.icon)
             .setOrigin(0, 0)
             .setDepth(depth)
             .on("pointerover", function () {
