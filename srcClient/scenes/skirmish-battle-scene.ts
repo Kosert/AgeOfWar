@@ -12,7 +12,9 @@ import { Warrior } from "../objects/units/warrior"
 import { Archer } from "../objects/units/archer"
 import { Knight } from "../objects/units/knight"
 import { Ai } from "../ai/ai"
-import { BasicWarriorAi } from "../ai/warrior-ai"
+import { EasyWarriorAi } from "../ai/warrior-easy-ai"
+import { EasyKnightAi } from "../ai/knight-ai"
+import { MediumWarriorAi } from "../ai/warrior-medium-ai"
 
 export class SkirmishBattleScene extends BaseBattleScene {
     static readonly sceneKey: string = "SkirmishBattleScene"
@@ -20,7 +22,8 @@ export class SkirmishBattleScene extends BaseBattleScene {
 
     private leftManager: BuildManager
     private rightManager: BuildManager
-    private ai: Ai
+    private leftAi?: Ai
+    private rightAi?: Ai
     private ui: Ui
 
     constructor() {
@@ -43,7 +46,8 @@ export class SkirmishBattleScene extends BaseBattleScene {
             BuildManagerConfig.default,
             (type: UnitType) => { this.spawnUnit(Team.Right, type) }
         )
-        this.ai = new BasicWarriorAi(this.rightManager)
+        // this.leftAi = new MediumWarriorAi(this.leftManager)
+        this.rightAi = new MediumWarriorAi(this.rightManager)
 
         this.ui = new Ui(this, this.leftManager)
     }
@@ -87,7 +91,8 @@ export class SkirmishBattleScene extends BaseBattleScene {
         this.rightManager.update(delta)
 
         if (!this.isGameOver()) {
-            this.ai.update(this.units)
+            this.leftAi?.update(this.units)
+            this.rightAi?.update(this.units)
         }
 
         this.ui.update(this.leftManager)

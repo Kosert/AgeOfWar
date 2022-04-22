@@ -133,6 +133,7 @@ export abstract class BaseBattleScene extends Scene {
     }
 
     protected onVictory(team: Team) {
+        this.units.filter(it => it.team != team).forEach(it => it.dealDamage(Infinity))
         this.victoryText.showVictory(team)
         setTimeout(() => {
             this.cleanup()
@@ -142,7 +143,6 @@ export abstract class BaseBattleScene extends Scene {
     }
 
     protected cleanup() {
-        //todo ragdoll
         this.victoryText.showVictory(null)
         this.controller.destroy()
         this.units.forEach(it => it.destroy())

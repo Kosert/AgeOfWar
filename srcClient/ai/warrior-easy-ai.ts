@@ -3,7 +3,8 @@ import { UnitBuildOption } from "../data/build/unit-build-option"
 import { Unit } from "../objects/units/unit"
 import { Ai } from "./ai"
 
-export class BasicWarriorAi extends Ai {
+export class EasyWarriorAi extends Ai {
+    
     update(units: Unit[]) {
         if (!this.require(BuildOption.UnlockWarrior)) {
             return

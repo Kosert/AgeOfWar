@@ -24,7 +24,7 @@ export class UnitBuildOption extends BuildOption {
     static readonly CreateKnight: BuildOption = new UnitBuildOption({
         unitType: UnitType.Knight,
         description: null,
-        goldCost: 60,
+        goldCost: 50,
         researchTime: 10_000,
         requires: [BuildOption.UnlockKnight]
     })

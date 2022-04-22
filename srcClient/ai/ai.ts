@@ -6,7 +6,15 @@ export abstract class Ai {
 
     constructor(readonly manager: BuildManager) {}
 
-    canAfford(option: BuildOption): boolean {
+    protected buyIfCanAfford(option: BuildOption): boolean {
+        if (this.canAfford(option)) {
+            this.manager.chooseOption(option)
+            return true
+        }
+        return false
+    }
+
+    protected canAfford(option: BuildOption): boolean {
         return this.manager.getCurrentGold() >= option.goldCost
     }
 
