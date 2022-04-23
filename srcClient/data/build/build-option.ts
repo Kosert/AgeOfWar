@@ -69,7 +69,7 @@ export class BuildOption {
         name: "upgrade_miner2",
         visibleName: "Upgrade Gold Mining",
         icon: "upgrade_miner2",
-        goldCost: 500,
+        goldCost: 400,
         researchTime: 10_000,
         tooltip: { description: "Miners work more efficiently (gold per second: 3→4)" },
         requires: [BuildOption.UpgradeMiners1]

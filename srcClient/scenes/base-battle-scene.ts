@@ -11,6 +11,7 @@ import VictoryText from "../ui/victory-text"
 import { Controller } from "../controller"
 import FpsText from "../ui/fpsText"
 import { MainMenuScene } from "./main-scene"
+import { Tooltip } from "../ui/tooltip"
 
 export abstract class BaseBattleScene extends Scene {
     abstract readonly sceneKey: string
@@ -133,6 +134,7 @@ export abstract class BaseBattleScene extends Scene {
     }
 
     protected onVictory(team: Team) {
+        Tooltip.show(this, null)
         this.units.filter(it => it.team != team).forEach(it => it.dealDamage(Infinity))
         this.victoryText.showVictory(team)
         setTimeout(() => {
