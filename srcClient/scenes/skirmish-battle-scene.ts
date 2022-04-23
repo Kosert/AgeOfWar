@@ -15,6 +15,7 @@ import { Ai } from "../ai/ai"
 import { EasyWarriorAi } from "../ai/warrior-easy-ai"
 import { EasyKnightAi } from "../ai/knight-ai"
 import { MediumWarriorAi } from "../ai/warrior-medium-ai"
+import { Mine } from "../objects/mine"
 
 export class SkirmishBattleScene extends BaseBattleScene {
     static readonly sceneKey: string = "SkirmishBattleScene"
@@ -25,6 +26,8 @@ export class SkirmishBattleScene extends BaseBattleScene {
     private leftAi?: Ai
     private rightAi?: Ai
     private ui: Ui
+    private mineLeft: Mine
+    private mineRight: Mine
 
     constructor() {
         super({ key: SkirmishBattleScene.sceneKey })
@@ -46,6 +49,8 @@ export class SkirmishBattleScene extends BaseBattleScene {
             BuildManagerConfig.default,
             (type: UnitType) => { this.spawnUnit(Team.Right, type) }
         )
+        this.mineLeft = new Mine(this, 20, this.cameras.main.height - 90, this.leftManager)
+        this.mineRight = new Mine(this, this.gameSettings.mapSize - 120, this.cameras.main.height - 90, this.rightManager)
         // this.leftAi = new MediumWarriorAi(this.leftManager)
         this.rightAi = new EasyWarriorAi(this.rightManager)
 
@@ -90,6 +95,9 @@ export class SkirmishBattleScene extends BaseBattleScene {
         this.leftManager.update(delta)
         this.rightManager.update(delta)
 
+        this.mineLeft.update()
+        this.mineRight.update()
+
         if (!this.isGameOver()) {
             this.leftAi?.update(this.units)
             this.rightAi?.update(this.units)
@@ -106,5 +114,7 @@ export class SkirmishBattleScene extends BaseBattleScene {
     protected cleanup() {
         super.cleanup()
         this.ui.destroy()
+        this.mineLeft.destroy()
+        this.mineRight.destroy()
     }
 }

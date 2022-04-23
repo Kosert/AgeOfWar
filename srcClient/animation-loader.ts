@@ -7,6 +7,12 @@ export class AnimationLoader {
 
     }
 
+    preloadMine() {
+        this.scene.load.spritesheet(`miner_blue`, `assets/miner/Miner_blue.png`, { frameWidth: 150, frameHeight: 150 })
+        this.scene.load.spritesheet(`miner_red`, `assets/miner/Miner_red.png`, { frameWidth: 150, frameHeight: 150 })
+        this.scene.load.image("mine", "assets/miner/mine.png")
+    }
+
     preload(unitType: UnitType) {
         const frameConfig = this.frameConfig(unitType)
         this.scene.load.spritesheet(`${unitType.name}_idle`, `assets/${unitType.name}/Idle.png`, frameConfig)
@@ -34,6 +40,7 @@ export class AnimationLoader {
     }
 
     createAnimations(unitType: UnitType) {
+        this.createMinerAnimations()
         switch (unitType) {
             case UnitType.Warrior:
                 this.createWarriorAnimations() 
@@ -45,6 +52,21 @@ export class AnimationLoader {
                 this.createArcherAnimations() 
                 break;
         }
+    }
+
+    private createMinerAnimations() {
+        this.scene.anims.create({
+            key: "miner_blue",
+            frames: this.scene.anims.generateFrameNumbers("miner_blue", { start: 0, end: 5 }),
+            frameRate: 6,
+            repeat: -1,
+        })
+        this.scene.anims.create({
+            key: "miner_red",
+            frames: this.scene.anims.generateFrameNumbers("miner_red", { start: 0, end: 5 }),
+            frameRate: 6,
+            repeat: -1,
+        })
     }
 
     private createWarriorAnimations() {

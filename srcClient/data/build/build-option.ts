@@ -96,7 +96,7 @@ export class BuildOption {
         name: "unlock_knight",
         visibleName: `Unlock ${UnitType.Knight.visibleName}`,
         icon: "unlock_knight",
-        goldCost: 100,
+        goldCost: 50,
         researchTime: 10_000,
     })
 
@@ -104,7 +104,7 @@ export class BuildOption {
         name: "unlock_archer",
         visibleName: `Unlock ${UnitType.Archer.visibleName}`,
         icon: "unlock_archer",
-        goldCost: 100,
+        goldCost: 50,
         researchTime: 10_000,
     })
     

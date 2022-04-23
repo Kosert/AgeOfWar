@@ -1,7 +1,9 @@
 //no code, just for info
 
 // Background = 0 
+// Miner - 0
 // Ground = 1
+// Mine - 2
 // Gate back = 10
 // Ragdoll = 13
 // Unit = 14

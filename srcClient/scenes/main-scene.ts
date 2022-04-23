@@ -19,6 +19,7 @@ export class MainMenuScene extends Scene {
     }
 
     preload() {
+        this.animationLoader.preloadMine()
         UnitType.values.forEach((it) => this.animationLoader.preload(it))
         BuildOption.values.forEach(it => {
             this.load.image(it.icon, `assets/icons/${it.icon}.png`)
