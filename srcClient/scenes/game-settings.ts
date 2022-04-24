@@ -1,3 +1,5 @@
+import { Ai, AiContructor } from "../ai/ai"
+import { BuildManager } from "../data/build/build-manager"
 import { BuildManagerConfig } from "../data/build/build-manager-config"
 
 export class GameSettings {
@@ -5,21 +7,11 @@ export class GameSettings {
     gateOffset: number
     leftBuildConfig?: BuildManagerConfig
     rightBuildConfig?: BuildManagerConfig
-    leftAi?
-    rightAi?
-
+    leftAi?: AiContructor
+    rightAi?: AiContructor
+    
     static default: GameSettings = {
         mapSize: 1920,
         gateOffset: 100,
-        leftBuildConfig: {
-            startGold: 100,
-            activeOptions: [],
-            disabledOptions: []
-        },
-        rightBuildConfig: {
-            startGold: 100,
-            activeOptions: [],
-            disabledOptions: []
-        },
     }
 }

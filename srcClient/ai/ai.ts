@@ -2,6 +2,10 @@ import { BuildManager } from "../data/build/build-manager"
 import { BuildOption } from "../data/build/build-option"
 import { Unit } from "../objects/units/unit"
 
+export interface AiContructor {
+    new (manager: BuildManager): Ai
+}
+
 export abstract class Ai {
 
     constructor(readonly manager: BuildManager) {}

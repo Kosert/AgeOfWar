@@ -1,8 +1,10 @@
 import { Scene } from "phaser";
+import { Ai, AiContructor } from "../ai/ai";
 import { EasyKnightAi } from "../ai/knight-ai";
 import { EasyWarriorAi } from "../ai/warrior-easy-ai";
 import { MediumWarriorAi } from "../ai/warrior-medium-ai";
 import { AnimationLoader } from "../animation-loader";
+import { BuildManager } from "../data/build/build-manager";
 import { BuildOption } from "../data/build/build-option";
 import { UnitBuildOption } from "../data/build/unit-build-option";
 import { UnitType } from "../data/unit-type";
@@ -84,10 +86,6 @@ export class MainMenuScene extends Scene {
         })
 
         // this.launchPlayground()
-
-        // this.events.on(Phaser.Scenes.Events.WAKE, (data: GameSettings) => {
-        //     this.launchSkirmish()
-        // }, this)
     }
 
     launchPlayground() {
@@ -102,7 +100,7 @@ export class MainMenuScene extends Scene {
         }
     }
 
-    launchSkirmish(aiClass) {
+    launchSkirmish(aiClass: AiContructor) {
         const gameSettings: GameSettings = { mapSize: 1920, gateOffset: 200, rightAi: aiClass }
         if (!this.scene.get(SkirmishBattleScene.sceneKey)) {
             this.scene.add(SkirmishBattleScene.sceneKey, SkirmishBattleScene, false)
