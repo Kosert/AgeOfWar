@@ -5,6 +5,8 @@ export class GameSettings {
     gateOffset: number
     leftBuildConfig?: BuildManagerConfig
     rightBuildConfig?: BuildManagerConfig
+    leftAi?
+    rightAi?
 
     static default: GameSettings = {
         mapSize: 1920,

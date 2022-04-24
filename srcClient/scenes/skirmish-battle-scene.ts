@@ -51,8 +51,10 @@ export class SkirmishBattleScene extends BaseBattleScene {
         )
         this.mineLeft = new Mine(this, 20, this.cameras.main.height - 90, this.leftManager)
         this.mineRight = new Mine(this, this.gameSettings.mapSize - 120, this.cameras.main.height - 90, this.rightManager)
-        // this.leftAi = new MediumWarriorAi(this.leftManager)
-        this.rightAi = new EasyWarriorAi(this.rightManager)
+        // this.leftAi = new EasyKnightAi(this.leftManager)
+        // this.leftAi = new this.gameSettings.leftAi(this.leftManager)
+        // this.rightAi = new EasyWarriorAi(this.rightManager)
+        this.rightAi = new this.gameSettings.rightAi(this.rightManager)
 
         this.ui = new Ui(this, this.leftManager)
     }

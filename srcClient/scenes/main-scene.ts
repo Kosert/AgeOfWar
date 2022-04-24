@@ -1,4 +1,7 @@
 import { Scene } from "phaser";
+import { EasyKnightAi } from "../ai/knight-ai";
+import { EasyWarriorAi } from "../ai/warrior-easy-ai";
+import { MediumWarriorAi } from "../ai/warrior-medium-ai";
 import { AnimationLoader } from "../animation-loader";
 import { BuildOption } from "../data/build/build-option";
 import { UnitBuildOption } from "../data/build/unit-build-option";
@@ -43,12 +46,48 @@ export class MainMenuScene extends Scene {
     create() {
         UnitType.values.forEach((it) => this.animationLoader.createAnimations(it))
 
-        this.launchSkirmish()
+        const self = this
+
+        this.add.text(100, 100, "Choose difficulty:", { font: "bold 40px Arial", color: "#FFFFFF" })
+
+        const easyButton = this.add.text(100, 300, "EASY", { font: "bold 32px Arial", color: "#FFFFFF" }).setOrigin(0, 0).setInteractive()
+        easyButton.on("pointerover", function () {
+            easyButton.setColor("#FF0000")
+        })
+        easyButton.on("pointerout", function () {
+            easyButton.setColor("#FFFFFF")
+        })
+        easyButton.on("pointerdown", function () {
+            self.launchSkirmish(EasyWarriorAi)
+        })
+
+        const mediumButton = this.add.text(100, 400, "MEDIUM", { font: "bold 32px Arial", color: "#FFFFFF" }).setOrigin(0, 0).setInteractive()
+        mediumButton.on("pointerover", function () {
+            mediumButton.setColor("#FF0000")
+        })
+        mediumButton.on("pointerout", function () {
+            mediumButton.setColor("#FFFFFF")
+        })
+        mediumButton.on("pointerdown", function () {
+            self.launchSkirmish(EasyKnightAi)
+        })
+
+        const hardButton = this.add.text(100, 500, "HARD", { font: "bold 32px Arial", color: "#FFFFFF" }).setOrigin(0, 0).setInteractive()
+        hardButton.on("pointerover", function () {
+            hardButton.setColor("#FF0000")
+        })
+        hardButton.on("pointerout", function () {
+            hardButton.setColor("#FFFFFF")
+        })
+        hardButton.on("pointerdown", function () {
+            self.launchSkirmish(MediumWarriorAi)
+        })
+
         // this.launchPlayground()
 
-        this.events.on(Phaser.Scenes.Events.WAKE, (data: GameSettings) => {
-            this.launchSkirmish()
-        }, this)
+        // this.events.on(Phaser.Scenes.Events.WAKE, (data: GameSettings) => {
+        //     this.launchSkirmish()
+        // }, this)
     }
 
     launchPlayground() {
@@ -63,8 +102,8 @@ export class MainMenuScene extends Scene {
         }
     }
 
-    launchSkirmish() {
-        const gameSettings: GameSettings = { mapSize: 1920, gateOffset: 200 }
+    launchSkirmish(aiClass) {
+        const gameSettings: GameSettings = { mapSize: 1920, gateOffset: 200, rightAi: aiClass }
         if (!this.scene.get(SkirmishBattleScene.sceneKey)) {
             this.scene.add(SkirmishBattleScene.sceneKey, SkirmishBattleScene, false)
             this.scene.sleep(MainMenuScene.sceneKey)
