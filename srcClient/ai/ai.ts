@@ -10,16 +10,21 @@ export abstract class Ai {
 
     constructor(readonly manager: BuildManager) {}
 
-    protected buyIfCanAfford(option: BuildOption): boolean {
-        if (this.canAfford(option)) {
-            this.manager.chooseOption(option)
+    abstract readonly name: string
+
+    protected buyIfCanAfford(...options: BuildOption[]): boolean {
+        if (this.canAfford(...options)) {
+            options.forEach(it => {
+                this.manager.chooseOption(it)
+            })
             return true
         }
         return false
     }
 
-    protected canAfford(option: BuildOption): boolean {
-        return this.manager.getCurrentGold() >= option.goldCost
+    protected canAfford(...options: BuildOption[]): boolean {
+        const costSum = options.map(it => it.goldCost).reduce((sum, current) => sum + current, 0)
+        return this.manager.getCurrentGold() >= costSum
     }
 
     protected require(option: BuildOption): boolean {

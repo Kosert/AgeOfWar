@@ -5,7 +5,9 @@ import { Ai } from "./ai"
 import { Repeater } from "./ai-util"
 import { BuildOrderAi } from "./build-order-ai"
 
-export class MediumWarriorAi extends BuildOrderAi {
+export class HardWarriorAi extends BuildOrderAi {
+
+    readonly name = "AI (Hard)"
 
     private counter1 = new Repeater()
 

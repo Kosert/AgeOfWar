@@ -2,7 +2,6 @@ import { Team } from "../data/team"
 import "util"
 import { BaseBattleScene } from "./base-battle-scene"
 import { GameSettings } from "./game-settings"
-import { Gate } from "../objects/gate"
 import { Ui } from "../ui/ui"
 import { BuildManager } from "../data/build/build-manager"
 import { BuildManagerConfig } from "../data/build/build-manager-config"
@@ -12,9 +11,6 @@ import { Warrior } from "../objects/units/warrior"
 import { Archer } from "../objects/units/archer"
 import { Knight } from "../objects/units/knight"
 import { Ai } from "../ai/ai"
-import { EasyWarriorAi } from "../ai/warrior-easy-ai"
-import { EasyKnightAi } from "../ai/knight-ai"
-import { MediumWarriorAi } from "../ai/warrior-medium-ai"
 import { Mine } from "../objects/mine"
 
 export class SkirmishBattleScene extends BaseBattleScene {
@@ -42,19 +38,26 @@ export class SkirmishBattleScene extends BaseBattleScene {
         this.leftManager = new BuildManager(
             Team.Left, 
             BuildManagerConfig.default,
+            this.leftStats,
             (type: UnitType) => { this.spawnUnit(Team.Left, type) }
         )
         this.rightManager = new BuildManager(
             Team.Right, 
             BuildManagerConfig.default,
+            this.rightStats,
             (type: UnitType) => { this.spawnUnit(Team.Right, type) }
         )
         this.mineLeft = new Mine(this, 20, this.cameras.main.height - 90, this.leftManager)
         this.mineRight = new Mine(this, this.gameSettings.mapSize - 120, this.cameras.main.height - 90, this.rightManager)
-        // this.leftAi = new EasyKnightAi(this.leftManager)
-        // this.leftAi = new this.gameSettings.leftAi(this.leftManager)
-        // this.rightAi = new EasyWarriorAi(this.rightManager)
-        this.rightAi = new this.gameSettings.rightAi(this.rightManager)
+        
+        if (this.gameSettings.leftAi) {
+            this.leftAi = new this.gameSettings.leftAi(this.leftManager)
+        }
+        if (this.gameSettings.rightAi) {
+            this.rightAi = new this.gameSettings.rightAi(this.rightManager)
+        }
+        this.leftStats.name = this.leftAi?.name ?? "You"
+        this.rightStats.name = this.rightAi?.name ?? "Unknown"
 
         this.ui = new Ui(this, this.leftManager)
     }

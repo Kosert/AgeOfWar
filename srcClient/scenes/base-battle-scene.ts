@@ -12,6 +12,9 @@ import { Controller } from "../controller"
 import FpsText from "../ui/fpsText"
 import { MainMenuScene } from "./main-scene"
 import { Tooltip } from "../ui/tooltip"
+import { StatisticsScene } from "./statistics-scene"
+import { StatisticsData } from "./statistics-data"
+import { PlayerStatistics } from "../data/player-statistics"
 
 export abstract class BaseBattleScene extends Scene {
     abstract readonly sceneKey: string
@@ -35,6 +38,10 @@ export abstract class BaseBattleScene extends Scene {
 
     private fpsText: FpsText
     protected victoryText: VictoryText
+
+    protected gameStartTime: number
+    protected leftStats: PlayerStatistics
+    protected rightStats: PlayerStatistics
 
     protected readonly units: Unit[] = []
     protected readonly projectiles: Projectile[] = []
@@ -74,6 +81,9 @@ export abstract class BaseBattleScene extends Scene {
 
         this.gateLeft = new Gate(this, this.gameSettings.gateOffset, Team.Left)
         this.gateRight = new Gate(this, this.gameSettings.mapSize - this.gameSettings.gateOffset, Team.Right)
+        this.leftStats = new PlayerStatistics()
+        this.rightStats = new PlayerStatistics()
+        this.gameStartTime = Date.now()
     }
 
     onNewProjectile(projectile: Projectile) {
@@ -137,10 +147,14 @@ export abstract class BaseBattleScene extends Scene {
         Tooltip.show(this, null)
         this.units.filter(it => it.team != team).forEach(it => it.dealDamage(Infinity))
         this.victoryText.showVictory(team)
+
+        const gameTime = Date.now() - this.gameStartTime
+        const gameStats = new StatisticsData(gameTime, team, this.leftStats, this.rightStats)
+
         setTimeout(() => {
             this.cleanup()
             this.scene.sleep(this.sceneKey)
-            this.scene.wake(MainMenuScene.sceneKey)
+            this.scene.run(StatisticsScene.sceneKey, gameStats)
         }, 4000);
     }
 

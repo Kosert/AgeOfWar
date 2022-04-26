@@ -1,8 +1,9 @@
 import { Scene } from "phaser";
 import { Ai, AiContructor } from "../ai/ai";
+import { HardestAi } from "../ai/hardest-ai";
 import { EasyKnightAi } from "../ai/knight-ai";
 import { EasyWarriorAi } from "../ai/warrior-easy-ai";
-import { MediumWarriorAi } from "../ai/warrior-medium-ai";
+import { HardWarriorAi } from "../ai/warrior-hard-ai";
 import { AnimationLoader } from "../animation-loader";
 import { BuildManager } from "../data/build/build-manager";
 import { BuildOption } from "../data/build/build-option";
@@ -52,56 +53,31 @@ export class MainMenuScene extends Scene {
 
         this.add.text(100, 100, "Choose difficulty:", { font: "bold 40px Arial", color: "#FFFFFF" })
 
-        const easyButton = this.add.text(100, 300, "EASY", { font: "bold 32px Arial", color: "#FFFFFF" }).setOrigin(0, 0).setInteractive()
-        easyButton.on("pointerover", function () {
-            easyButton.setColor("#FF0000")
-        })
-        easyButton.on("pointerout", function () {
-            easyButton.setColor("#FFFFFF")
-        })
-        easyButton.on("pointerdown", function () {
-            self.launchSkirmish(EasyWarriorAi)
-        })
-
-        const mediumButton = this.add.text(100, 400, "MEDIUM", { font: "bold 32px Arial", color: "#FFFFFF" }).setOrigin(0, 0).setInteractive()
-        mediumButton.on("pointerover", function () {
-            mediumButton.setColor("#FF0000")
-        })
-        mediumButton.on("pointerout", function () {
-            mediumButton.setColor("#FFFFFF")
-        })
-        mediumButton.on("pointerdown", function () {
-            self.launchSkirmish(EasyKnightAi)
-        })
-
-        const hardButton = this.add.text(100, 500, "HARD", { font: "bold 32px Arial", color: "#FFFFFF" }).setOrigin(0, 0).setInteractive()
-        hardButton.on("pointerover", function () {
-            hardButton.setColor("#FF0000")
-        })
-        hardButton.on("pointerout", function () {
-            hardButton.setColor("#FFFFFF")
-        })
-        hardButton.on("pointerdown", function () {
-            self.launchSkirmish(MediumWarriorAi)
-        })
-
-        // this.launchPlayground()
+        this.createButton(300, "EASY", EasyWarriorAi)
+        this.createButton(400, "MEDIUM", EasyKnightAi)
+        this.createButton(500, "HARD", HardWarriorAi)
+        this.createButton(600, "HARDEST", HardestAi)
     }
 
-    launchPlayground() {
-        const gameSettings: GameSettings = { mapSize: 1920, gateOffset: 100 }
-        if (!this.scene.get(PlaygroundBattleScene.sceneKey)) {
-            this.scene.add(PlaygroundBattleScene.sceneKey, PlaygroundBattleScene, false)
-            this.scene.sleep(MainMenuScene.sceneKey)
-            this.scene.run(PlaygroundBattleScene.sceneKey, gameSettings)
-        } else {
-            this.scene.sleep(MainMenuScene.sceneKey)
-            this.scene.wake(PlaygroundBattleScene.sceneKey, gameSettings)
-        }
+    private createButton(y: number, text: string, aiClass: AiContructor) {
+        const self = this
+        const button = this.add.text(100, y, text, { font: "bold 32px Arial", color: "#FFFFFF" }).setOrigin(0, 0).setInteractive()
+        button.on("pointerover", function () {
+            button.setColor("#FF0000")
+        })
+        button.on("pointerout", function () {
+            button.setColor("#FFFFFF")
+        })
+        button.on("pointerdown", function () {
+            self.launchSkirmish(aiClass)
+        })
     }
 
     launchSkirmish(aiClass: AiContructor) {
-        const gameSettings: GameSettings = { mapSize: 1920, gateOffset: 200, rightAi: aiClass }
+        const gameSettings: GameSettings = { mapSize: 1920, gateOffset: 200,
+            // leftAi: HardAi, 
+            rightAi: aiClass 
+        }
         if (!this.scene.get(SkirmishBattleScene.sceneKey)) {
             this.scene.add(SkirmishBattleScene.sceneKey, SkirmishBattleScene, false)
             this.scene.sleep(MainMenuScene.sceneKey)
@@ -111,4 +87,16 @@ export class MainMenuScene extends Scene {
             this.scene.wake(SkirmishBattleScene.sceneKey, gameSettings)
         }
     }
+    
+    // launchPlayground() {
+    //     const gameSettings: GameSettings = { mapSize: 1920, gateOffset: 100 }
+    //     if (!this.scene.get(PlaygroundBattleScene.sceneKey)) {
+    //         this.scene.add(PlaygroundBattleScene.sceneKey, PlaygroundBattleScene, false)
+    //         this.scene.sleep(MainMenuScene.sceneKey)
+    //         this.scene.run(PlaygroundBattleScene.sceneKey, gameSettings)
+    //     } else {
+    //         this.scene.sleep(MainMenuScene.sceneKey)
+    //         this.scene.wake(PlaygroundBattleScene.sceneKey, gameSettings)
+    //     }
+    // }
 }

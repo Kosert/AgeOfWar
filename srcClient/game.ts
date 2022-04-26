@@ -3,6 +3,7 @@ import { MainMenuScene } from "./scenes/main-scene"
 import { PauseMenuScene } from "./scenes/pause/pause-scene"
 import { PlaygroundBattleScene } from "./scenes/playground-scene"
 import { SkirmishBattleScene } from "./scenes/skirmish-battle-scene"
+import { StatisticsScene } from "./scenes/statistics-scene"
 
 // main game configuration
 const config: Phaser.Types.Core.GameConfig = {
@@ -22,7 +23,7 @@ const config: Phaser.Types.Core.GameConfig = {
         antialias: true,
         roundPixels: true,
     },
-    scene: [ MainMenuScene, PauseMenuScene],
+    scene: [ MainMenuScene, PauseMenuScene, StatisticsScene ],
     input: {
         keyboard: true,
         mouse: true,

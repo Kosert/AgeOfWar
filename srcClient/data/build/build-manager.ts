@@ -1,3 +1,4 @@
+import { PlayerStatistics } from "../player-statistics"
 import { Team } from "../team"
 import { UnitType } from "../unit-type"
 import { BuildManagerConfig } from "./build-manager-config"
@@ -20,7 +21,12 @@ export class BuildManager {
         return this.ownedOptions.includes(option)
     }
 
-    constructor(readonly team: Team, config: BuildManagerConfig, readonly unitSpawner: (type: UnitType) => void) {
+    constructor(
+        readonly team: Team,
+        config: BuildManagerConfig,
+        private stats: PlayerStatistics,
+        readonly unitSpawner: (type: UnitType) => void
+    ) {
         this.currentGold = config.startGold
         this.goldProduction = 2
         this.ownedOptions.push(...config.activeOptions)
@@ -49,6 +55,7 @@ export class BuildManager {
         //todo build queue and research time
         if (option instanceof UnitBuildOption) {
             this.unitSpawner(option.unitType)
+            this.stats.addSpawn(option.unitType)
         } else {
             this.ownedOptions.push(option)
         }
@@ -74,6 +81,7 @@ export class BuildManager {
 
         if (this.sinceLastMineTick > 1000) {
             this.currentGold += this.goldProduction
+            this.stats.addGold(this.goldProduction)
             this.sinceLastMineTick = 0
         }
     }

@@ -5,6 +5,8 @@ import { Ai } from "./ai"
 
 export class EasyWarriorAi extends Ai {
     
+    readonly name = "AI (Easy)"
+
     update(units: Unit[]) {
         if (!this.require(BuildOption.UnlockWarrior)) {
             return

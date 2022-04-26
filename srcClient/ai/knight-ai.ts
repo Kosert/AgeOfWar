@@ -4,6 +4,9 @@ import { Unit } from "../objects/units/unit"
 import { Ai } from "./ai"
 
 export class EasyKnightAi extends Ai {
+    
+    readonly name = "AI (Medium)"
+
     update(units: Unit[]) {
         if (!this.require(BuildOption.CreateMiner1)) {
             return
